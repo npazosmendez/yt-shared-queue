@@ -1,12 +1,24 @@
 import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
+import http from 'http';
 import errorHandler from "errorhandler";
+import WebSocket from 'ws';
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-var app = express();
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws: WebSocket) => {
+  ws.send("Hello from Server!");
+  console.log('New websocket connection');
+  ws.on('message', (message) => {
+    console.log('Message from Client: %s', message);
+  });
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, '../views'));
@@ -33,21 +45,13 @@ app.use(function(err : Error, req : express.Request, res : express.Response, nex
 });
 
 
-
 if (process.env.NODE_ENV === "development") {
     app.use(errorHandler());
 }
 
 const port = 8088;
 
-const server = app.listen(port, () => {
-  console.log(
-      "  App is running at http://localhost:%d in %s mode",
-      port,
-      app.get("env")
-  );
-  console.log("  Press CTRL-C to stop\n");
-});
+server.listen(port, () => console.log(`http server is listening on http://localhost:${port}`));
 
 export default server;
 
