@@ -1,0 +1,28 @@
+{
+  "name": "yt-shared-queue",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "npm run build && concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"tsc -w\" \"nodemon dist/app.js\""
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "morgan": "^1.9.1",
+    "pug": "2.0.0-beta11"
+  },
+  "devDependencies": {
+    "@types/errorhandler": "^1.5.0",
+    "@types/express": "^4.17.11",
+    "@types/morgan": "^1.9.2",
+    "@types/node": "^15.0.1",
+    "concurrently": "^6.0.2",
+    "errorhandler": "^1.5.1",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  }
+}
