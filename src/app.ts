@@ -48,7 +48,7 @@ if (process.env.NODE_ENV === "development") {
     app.use(errorHandler());
 }
 
-const port = 8088;
+const port = process.env.PORT || 8088;
 
 server.listen(port, () => console.log(`http server is listening on http://localhost:${port}`));
 
