@@ -3,6 +3,59 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #00B7FF;
+button {
+  display: block;
+  transition-duration: 0s;
+  background-color: white;
+  color: black;
+  border: 2px solid #0fa3e7;
+  width: 100%;
+  font-size: 18px;
+  margin-bottom: 4px;
+  margin-top: 4px;
+  border-radius: 10px
+}
+
+button:hover {
+  background-color: #0fa3e7;
+  color: white;
+}
+
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input {
+  font-size: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius:10px;
+}
+
+.parent {
+  /* display: flex; */
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+}
+
+.queue-push {
+  margin-bottom: 35px;
+}
+
+.queue-connection {
+  margin-bottom: 35px;
+}
+
+
+.queue-controls {
+  margin: 0;
+  padding: 0;
+}
+
+#currentQueue {
+  font-size: 20px;
+  font-weight: bold;
+  color: #0fa3e7;
 }

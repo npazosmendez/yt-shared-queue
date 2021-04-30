@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "npm run copy-files && tsc",
     "start": "node dist/app.js",
-    "dev": "npm run build && concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"tsc -w\" \"nodemon dist/app.js\""
+    "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css dist/",
+    "watch-sass": "sass --watch src/public/stylesheets/style.css dist/public/stylesheets/style.css",
+    "dev": "npm run build && concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"tsc -w\" \"nodemon dist/app.js\""
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -24,8 +26,11 @@
     "@types/morgan": "^1.9.2",
     "@types/node": "^15.0.1",
     "@types/ws": "^7.4.2",
+    "@types/youtube": "0.0.42",
     "concurrently": "^6.0.2",
+    "copyfiles": "^2.4.1",
     "errorhandler": "^1.5.1",
+    "sass": "1.32.6",
     "nodemon": "^2.0.7",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4",
