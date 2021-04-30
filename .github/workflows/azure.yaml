@@ -5,7 +5,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: ytsharedqueue
-  AZURE_WEBAPP_PACKAGE_PATH: 'dist'
+  AZURE_WEBAPP_PACKAGE_PATH: 'dist.tar'
   NODE_VERSION: '14.x'
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
 
     - name: Build
       run: |
-        npm install && npm run build
+        npm install && npm run build && tar -cf dist.tar build/ node_modules/ views/
 
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2

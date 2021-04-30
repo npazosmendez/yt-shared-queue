@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "build": "npm run copy-files && tsc",
-    "start": "node dist/app.js",
-    "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css dist/",
-    "watch-sass": "sass --watch src/public/stylesheets/style.css dist/public/stylesheets/style.css",
-    "dev": "npm run build && concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"tsc -w\" \"nodemon dist/app.js\""
+    "start": "node build/app.js",
+    "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css build/",
+    "watch-sass": "sass --watch src/public/stylesheets/style.css build/public/stylesheets/style.css",
+    "dev": "npm run build && concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"tsc -w\" \"nodemon build/app.js\""
   },
   "dependencies": {
     "axios": "^0.21.1",
