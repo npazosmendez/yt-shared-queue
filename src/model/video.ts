@@ -1,10 +1,11 @@
 import axios from "axios";
 import {parse, toSeconds} from 'iso8601-duration';
-
+import {Memoize} from 'typescript-memoize';
 
 export class Video {
     constructor(public id : string, public durationSeconds : number) {}
 
+    @Memoize()
     static async createFromId(id : string) : Promise<Video> {
         const API_KEY = process.env.GOOGLE_API_KEY;
         const url = `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=contentDetails&key=${API_KEY}`;
