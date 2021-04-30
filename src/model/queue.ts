@@ -6,30 +6,49 @@ var queues: { [id: string] : Queue; } = {};
 export class Queue {
 
     id : string;
-    videos : [Video, number][] = [];
+    currentVideoStartTime : number;
+    videos : Video[] = [];
 
     async pushVideoById(videoId: string) {
+        if (!this.videos.length) {
+            this.currentVideoStartTime = Math.round(Date.now() / 1000);
+        }
         const v = await Video.createFromId(videoId);
-        this.videos.push([v, Math.round(Date.now() / 1000)]);
+        this.videos.push(v);
     }
+
     getCurrentVideoTime() : number {
+        this.updateQueue();
         if (this.videos.length) {
-            return Math.round(Date.now() / 1000) - this.videos[0][1];;
+            return Math.round(Date.now() / 1000) - this.currentVideoStartTime;
         } else {
             return 0;
         }
     }
 
     getCurrentVideoId() : string {
+        this.updateQueue();
         if (this.videos.length) {
-            return this.videos[0][0].id;
+            return this.videos[0].id;
         } else {
             return '';
         }
     }
 
+    private updateQueue() {
+        if (this.videos.length) {
+            const elapsed = Math.round(Date.now() / 1000) - this.currentVideoStartTime;
+            const duration = this.videos[0].durationSeconds;
+            if (elapsed - duration > 3) {
+                this.videos.shift();
+                this.currentVideoStartTime = Math.round(Date.now() / 1000);
+            }
+        }
+    }
+
     constructor() {
         this.id = randomStr();
+        this.currentVideoStartTime = 0;
         queues[this.id] = this;
     }
 
