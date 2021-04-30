@@ -4,21 +4,19 @@ import morgan from 'morgan';
 import http from 'http';
 import errorHandler from "errorhandler";
 import WebSocket from 'ws';
+import { connectionHandler } from './websocket/handler';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var queueRouter = require('./routes/queue');
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-wss.on('connection', (ws: WebSocket) => {
-  ws.send("Hello from Server!");
-  console.log('New websocket connection');
-  ws.on('message', (message) => {
-    console.log('Message from Client: %s', message);
-  });
-});
+wss.on('connection', connectionHandler);
 
 // view engine setup
 app.set('views', path.join(__dirname, '../views'));
@@ -30,18 +28,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/queue', queueRouter);
 
 
 // error handler
 app.use(function(err : Error, req : express.Request, res : express.Response, next : express.RequestHandler) {
   // set locals, only providing error in development
+  console.log(err)
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
   res.status(500);
-  res.render('error');
+  return res.render('error');
 });
 
 

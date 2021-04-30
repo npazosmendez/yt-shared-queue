@@ -1,18 +1,166 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  div(id='player')
+
+  h3 Connect to a queue
+
+  input(type="text", name="queueId", id="queueIdInput", value="", placeholder="Queue ID")
+  button(onclick='connectToQueue()') Connect to queue
+  button(onclick='newQueue()') New queue
+
+  p(id='connectedQueue')
+  input(type="text", name="videoIdInput", id="videoIdInput", value="msyyiJ8fMZQ", placeholder="Video ID")
+  button(onclick='addToQueue()') Add to queue
+
+
+  p(id='createdQueue')
+
+
   script.
-    window.onload = function() {
-      const socket = new WebSocket('ws://localhost:8088');
+    // 2. This code loads the IFrame Player API code asynchronously.
+    var tag = document.createElement('script');
 
-      socket.addEventListener('open', function(event) {
-        socket.send('Hello from Client!');
-      });
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-      socket.addEventListener('message', function(event) {
-        console.log('Message from Server:', event.data);
+    // 3. This function creates an <iframe> (and YouTube player)
+    //    after the API code downloads.
+    var player;
+    var videoId = '';
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '180',
+        width: '320',
+        videoId: videoId,
+        playerVars: {
+          'autoplay': 1,
+          'controls': 0,
+          'showinfo': 0
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
       });
+    }
+
+    // 4. The API will call this function when the video player is ready.
+    function onPlayerReady(event) {
+      event.target.playVideo();
+    }
+
+
+    function onPlayerStateChange(event) {
+      if(event.data === 0) {
+          alert('done');
+      }
+      if (event.data == YT.PlayerState.PLAYING) {
+
+      }
+    }
+
+    var queueId;
+    function newQueue() {
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open("PUT", '/queue', false);
+      xmlHttp.send( null );
+
+      var data = JSON.parse(xmlHttp.responseText);
+      queueId = data.id;
+
+      if (queueId) {
+        document.getElementById("queueIdInput").value = queueId;
+      } else {
+        document.getElementById("createdQueue").innerHTML = "ERROR!";
+      }
+      updateQueue();
+
+    }
+
+    function addToQueue() {
+      if (queueId) {
+        var videoId = document.getElementById("videoIdInput").value;
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("POST", '/queue/' + queueId + '/push', false);
+        xmlHttp.setRequestHeader('Content-Type', 'application/json');
+        xmlHttp.send( `{"id": "${videoId}"}`);
+      }
+
+    }
+
+    function updateQueue() {
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open("GET", '/queue/' + queueId, false);
+      xmlHttp.send(null);
+
+      var data = JSON.parse(xmlHttp.responseText);
+      console.log(data);
+      queueId = data['id'];
+
+      document.getElementById("connectedQueue").innerHTML = "conectado a " + queueId;
+
+      var newVideoId = data['currentVideo'];
+      var currentTime = data['currentTime'];
+
+      console.log("current time " + player.getCurrentTime())
+      var offset = Math.abs(currentTime - player.getCurrentTime());
+      console.log("offset:" + offset)
+      if (videoId != newVideoId) {
+        videoId = newVideoId;
+        player.loadVideoById(videoId, 0, "large");
+      } else if (offset > 10) {
+        console.log("updating time..")
+        player.loadVideoById(videoId, currentTime, "large");
+      }
+    }
+    let socket;
+    function connectToQueue() {
+      // TODO: validate
+      queueId = document.getElementById("queueIdInput").value;
+
+      interval = setInterval(function() {
+        updateQueue();
+      }, 5000);
+
+      //- socket = new WebSocket('ws://localhost:8088/' + queueId);
+
+      //- socket.addEventListener('open', function(event) {
+      //-   socket.send('Hello from Client!');
+      //- });
+
+      //- socket.addEventListener('message', function(event) {
+      //-   var data = JSON.parse(event.data);
+      //-   console.log(data);
+      //-   var newVideoId = data['videoId'];
+      //-   var currentTime = data['time'];
+      //-   console.log("current time " + player.getCurrentTime())
+      //-   var offset = Math.abs(currentTime - player.getCurrentTime());
+      //-   console.log("offset:" + offset)
+      //-   if (videoId != newVideoId) {
+      //-     videoId = newVideoId;
+      //-     player.loadVideoById(videoId, 0, "large");
+      //-   } else if (offset > 10) {
+      //-     console.log("updating time..")
+      //-     player.loadVideoById(videoId, currentTime, "large");
+      //-   }
+      //- });
+
+      //- socket.addEventListener('close', function(event) {
+      //-   if (event.code == 4001) {
+      //-     document.getElementById("connectedQueue").innerHTML = event.reason;
+      //-   } else {
+      //-     console.log('Connection closed:' + event.code)
+      //-   }
+      //- });
+
+      //- interval = setInterval(function() {
+      //-   if (socket && socket.readyState != WebSocket.CLOSED) {
+      //-     socket.send("ping");
+      //-   }
+      //- }, 5000);
+
+
     }
 
