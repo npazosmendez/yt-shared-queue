@@ -55,13 +55,19 @@ function updateQueueData() {
     lastServerUpdate = JSON.parse(xmlHttp.responseText) as ServerUpdate;
     queueId = lastServerUpdate.id;
 
-    if (queueId) {
-        renderQueue();
-    }
+    renderQueue();
 }
 
 
 function renderQueue() {
+    var currentQueue = document.getElementById("current-queue") as HTMLInputElement;
+    if (!queueId) {
+        currentQueue.style.display = "none";
+        return;
+    } else {
+        currentQueue.style.display = "block";
+    }
+
     (document.getElementById("queue-name") as HTMLInputElement).innerHTML = "Queue " + queueId;
 
     var currentTime = lastServerUpdate.currentVideoTime;
