@@ -13,10 +13,10 @@ router.put('/', function (req: express.Request, res: express.Response, next: exp
 router.post('/:id/push', async function (req: express.Request, res: express.Response, next: express.NextFunction) {
   console.log(req.body);
   const queueId = req.params.id;
-  const videoId = req.body.id;
+  const videoUrl = req.body.url;
   const q = Queue.get(queueId);
-  if (q && videoId) {
-    q.pushVideoById(videoId)
+  if (q && videoUrl) {
+    q.pushVideoByUrl(videoUrl)
       .then(() => res.send("ok"))
       .catch(next);
   } else {

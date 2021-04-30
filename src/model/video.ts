@@ -5,8 +5,18 @@ import {Memoize} from 'typescript-memoize';
 export class Video {
     constructor(public id : string, public durationSeconds : number) {}
 
+    static async createFromUrl(urlString : string) : Promise<Video> {
+        const url = new URL(urlString);
+        const id = url.searchParams.get('v');
+        if (id) {
+            return Video.createFromId(id);
+        } else {
+            throw Error("Invalid url" + url);
+        }
+    }
+
     @Memoize()
-    static async createFromId(id : string) : Promise<Video> {
+    private static async createFromId(id : string) : Promise<Video> {
         const API_KEY = process.env.GOOGLE_API_KEY;
         const url = `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=contentDetails&key=${API_KEY}`;
         const response = await axios.get(url);

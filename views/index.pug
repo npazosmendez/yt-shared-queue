@@ -10,7 +10,7 @@ block content
   button(onclick='newQueue()') New queue
 
   p(id='connectedQueue')
-  input(type="text", name="videoIdInput", id="videoIdInput", value="h-KMjuiQ4D4", placeholder="Video ID")
+  input(type="text", name="videoUrlInput", id="videoUrlInput", value="h-KMjuiQ4D4", placeholder="Video ID")
   button(onclick='addToQueue()') Add to queue
 
 
@@ -78,11 +78,15 @@ block content
 
     function addToQueue() {
       if (queueId) {
-        var videoId = document.getElementById("videoIdInput").value;
+        var videoUrl = document.getElementById("videoUrlInput").value;
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("POST", '/queue/' + queueId + '/push', false);
         xmlHttp.setRequestHeader('Content-Type', 'application/json');
-        xmlHttp.send( `{"id": "${videoId}"}`);
+        xmlHttp.send( `{"url": "${videoUrl}"}`);
+      }
+
+      if(!videoId) {
+        updateQueue();
       }
 
     }
