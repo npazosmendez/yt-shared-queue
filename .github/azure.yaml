@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - release
+
 env:
   AZURE_WEBAPP_NAME: ytsharedqueue
   AZURE_WEBAPP_PACKAGE_PATH: 'dist'
