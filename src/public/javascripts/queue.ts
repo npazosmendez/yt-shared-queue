@@ -1,6 +1,11 @@
+// Global state
 var queueId: string;
 var currentVideoId: string;
-var videoQueue : { 'id': string, 'title': string, 'duration' : number }[];
+var lastServerUpdate : ServerUpdate;
+var lastServerUpdateTime : number;
+
+type Video = { 'id': string, 'title': string, 'duration' : number };
+type ServerUpdate = { 'id': string, 'videos': Video[], 'currentVideoTime': number};
 
 function newQueue() {
     var xmlHttp = new XMLHttpRequest();
@@ -16,8 +21,14 @@ function newQueue() {
         let f = document.getElementById("queueIdInput") as HTMLInputElement;
         f.value = "ERROR!";
     }
-    updateQueue();
+    updateQueueData();
 
+}
+
+function connectToQueue() {
+    // TODO: validate
+    queueId = (document.getElementById("queueIdInput") as HTMLInputElement).value;
+    updateQueueData();
 }
 
 function addToQueue() {
@@ -29,12 +40,10 @@ function addToQueue() {
         xmlHttp.send(`{"url": "${videoUrl}"}`);
     }
 
-    if (!currentVideoId) {
-        updateQueue();
-    }
+    updateQueueData();
 }
 
-function updateQueue() {
+function updateQueueData() {
     if (!queueId) {
         console.log("No queue to update.")
         return;
@@ -43,40 +52,48 @@ function updateQueue() {
     xmlHttp.open("GET", '/queue/' + queueId, false);
     xmlHttp.send(null);
 
-    var data = JSON.parse(xmlHttp.responseText);
-    queueId = data['id'];
+    lastServerUpdate = JSON.parse(xmlHttp.responseText) as ServerUpdate;
+    queueId = lastServerUpdate.id;
 
+    if (queueId) {
+        renderQueue();
+    }
+}
+
+
+function renderQueue() {
     (document.getElementById("queue-name") as HTMLInputElement).innerHTML = "Queue " + queueId;
 
-    var currentTime = data['currentVideoTime'];
-    videoQueue = data['videos'] as { 'id': string, 'title': string, 'duration': number }[]
+    var currentTime = lastServerUpdate.currentVideoTime;
+    var videoQueue = lastServerUpdate.videos;
 
     if (!videoQueue.length) {
         console.log(`Queue ${queueId} is empty.`);
         var queue = document.getElementById("queue") as HTMLInputElement;
         queue.style.display = "none";
+        player.stopVideo();
         return;
     }
     var newVideoId = videoQueue[0]['id'];
     var newVideoTitle = videoQueue[0]['title'];
-    console.log("Updating queue from data", data);
+    console.log("Updating queue from data", lastServerUpdate);
 
-    var offset = Math.abs(currentTime - player.getCurrentTime());
+    let offset : number = Infinity;
 
-    if (videoQueue.length > 1 && currentVideoId == videoQueue[1].id &&
-        Math.abs(currentTime - videoQueue[0].duration) + player.getCurrentTime() < 10) {
-        console.log("Client already in next video.")
-    } else if (currentVideoId != newVideoId) {
-        console.log(`Changing current video from ${currentVideoId} to ${newVideoId}.`);
-        currentVideoId = newVideoId;
-        player.loadVideoById(currentVideoId, currentTime, "large");
-        player.playVideo();
-    } else if (offset > 10) {
-        console.log(`Updating time, off by ${currentTime} - ${player.getCurrentTime()} = ${offset}.`);
-        player.seekTo(currentTime, true);
+    if (currentVideoId == newVideoId) {
+        offset = Math.abs(currentTime - player.getCurrentTime());
+    } else if (videoQueue.length > 1 && currentVideoId == videoQueue[1].id) {
+        // already playing next one
+        offset = Math.abs(currentTime - videoQueue[0].duration) + player.getCurrentTime();
     }
 
-    console.log("Offset is", offset);
+    if (player.getPlayerState() in [YT.PlayerState.BUFFERING, YT.PlayerState.PLAYING] == false) {
+        console.log(`Starting video ${newVideoId}.`);
+        setCurrentVideo(newVideoId, currentTime);
+    } else if (offset > 10) {
+        console.log(`Updating time, off by ${offset}.`);
+        setCurrentVideo(newVideoId, currentTime);
+    }
 
     (document.getElementById("current-video-title") as HTMLInputElement).innerHTML = newVideoTitle;
     let ul = document.getElementById("queued-videos-titles") as HTMLInputElement;
@@ -92,62 +109,21 @@ function updateQueue() {
     queue.style.display = "block";
 }
 
+function setCurrentVideo(id : string, startSeconds : number) {
+    currentVideoId = id;
+    player.loadVideoById(currentVideoId, startSeconds, "large");
+    player.playVideo();
+}
 
 function onVideoEnds() {
-    console.log("Video ended, poping preemptively")
-    videoQueue.shift();
-    if (videoQueue.length) {
-        currentVideoId = videoQueue[0].id;
-        player.loadVideoById(videoQueue[0].id, 0, "large");
-        player.playVideo();
+    console.log("Video ended, popping preemptively")
+    lastServerUpdate.videos.shift();
+    if (lastServerUpdate.videos.length) {
+        setCurrentVideo(lastServerUpdate.videos[0].id, 0);
     }
 }
 
-function connectToQueue() {
-    // TODO: validate
-    queueId = (document.getElementById("queueIdInput") as HTMLInputElement).value;
-    updateQueue();
-
-    //- socket = new WebSocket('ws://localhost:8088/' + queueId);
-
-    //- socket.addEventListener('open', function(event) {
-    //-   socket.send('Hello from Client!');
-    //- });
-
-    //- socket.addEventListener('message', function(event) {
-    //-   var data = JSON.parse(event.data);
-    //-   console.log(data);
-    //-   var newVideoId = data['currentVideoId'];
-    //-   var currentTime = data['time'];
-    //-   console.log("current time " + player.getCurrentTime())
-    //-   var offset = Math.abs(currentTime - player.getCurrentTime());
-    //-   console.log("offset:" + offset)
-    //-   if (currentVideoId != newVideoId) {
-    //-     currentVideoId = newVideoId;
-    //-     player.loadVideoById(currentVideoId, 0, "large");
-    //-   } else if (offset > 10) {
-    //-     console.log("updating time..")
-    //-     player.loadVideoById(currentVideoId, currentTime, "large");
-    //-   }
-    //- });
-
-    //- socket.addEventListener('close', function(event) {
-    //-   if (event.code == 4001) {
-    //-     document.getElementById("connectedQueue").innerHTML = event.reason;
-    //-   } else {
-    //-     console.log('Connection closed:' + event.code)
-    //-   }
-    //- });
-
-    //- interval = setInterval(function() {
-    //-   if (socket && socket.readyState != WebSocket.CLOSED) {
-    //-     socket.send("ping");
-    //-   }
-    //- }, 5000);
-
-
-}
 
 let interval = setInterval(function () {
-    updateQueue();
+    updateQueueData();
 }, 5000);
