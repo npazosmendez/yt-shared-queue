@@ -54,10 +54,10 @@ function updateQueue() {
     if (videoId != newVideoId) {
         videoId = newVideoId;
         player.loadVideoById(videoId, currentTime, "large");
+        player.playVideo();
     } else if (offset > 10) {
         console.log("updating time..")
-        player.loadVideoById(videoId, currentTime, "large");
-    }
+        player.seekTo(currentTime, true);    }
 }
 
 function connectToQueue() {
