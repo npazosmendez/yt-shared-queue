@@ -54,8 +54,9 @@ input {
   padding: 0;
 }
 
-#currentQueue {
+#queue-name {
   font-size: 20px;
   font-weight: bold;
   color: #0fa3e7;
+  margin-top: 30px;
 }

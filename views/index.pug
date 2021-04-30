@@ -17,7 +17,13 @@ block content
       button(onclick='addToQueue()') Add to queue
 
 
-    p(id='currentQueue')
+    div(id='current-queue')
+      p(id='queue-name')
+      div(class="card", style="width: 640px;", id='queue')
+        div(class="card-header" id="current-video-title")
+        ul(class="list-group list-group-flush" id="queued-videos-titles")
+
+
     p(id='createdQueue')
 
     script(src='/javascripts/player.js')

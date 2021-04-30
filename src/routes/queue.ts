@@ -28,10 +28,13 @@ router.get('/:id', async function (req: express.Request, res: express.Response, 
   const queueId = req.params.id;
   const q = Queue.get(queueId);
   if (q) {
+    // TODO: potential race condition
+    const videos =  q.getVideos();
+    const currentVideoTime = q.getCurrentVideoTime();
     res.send(JSON.stringify({
       'id': queueId,
-      'currentVideo': q.getCurrentVideoId(),
-      'currentTime': q.getCurrentVideoTime(),
+      'videos': videos.map(v => ({'id': v.id, 'title': v.title, 'duration': v.durationSeconds})),
+      'currentVideoTime': currentVideoTime,
     }));
   } else {
     res.sendStatus(404);

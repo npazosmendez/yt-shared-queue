@@ -35,6 +35,6 @@ function onPlayerReady(event : any) {
 
 function onPlayerStateChange(event : any) {
     if(event.data === 0) {
-        // TODO: play next video preemptively
+        onVideoEnds();
     }
 }
