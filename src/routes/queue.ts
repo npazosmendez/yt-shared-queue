@@ -1,5 +1,5 @@
 import express from 'express';
-import { Queue } from '../model/queue';
+import { Queue, QueueState } from '../model/queue';
 import { Video } from '../model/video';
 var router = express.Router();
 
@@ -39,17 +39,9 @@ router.get('/:id/state', async function (req: express.Request, res: express.Resp
       'Connection': 'keep-alive'
     })
     var id = (++uuid).toString();
-    var sendState = () => {
-      // TODO: consider taking state in callback and let the Queue itself compute it
+    var sendState = (state : QueueState) => {
       console.log(`Sending queue ${queueId} update to ${id}`)
-      const videos =  q.getVideos();
-      const currentVideoTime = q.getCurrentVideoTime();
-      const state = JSON.stringify({
-        'id': queueId,
-        'videos': videos.map(v => ({'id': v.id, 'title': v.title, 'duration': v.durationSeconds})),
-        'currentVideoTime': currentVideoTime,
-      })
-      res.write("data: " + state + "\n\n")
+      res.write("data: " + JSON.stringify(state) + "\n\n")
     }
 
     req.on('close', () => {
@@ -59,7 +51,7 @@ router.get('/:id/state', async function (req: express.Request, res: express.Resp
     });
 
     q.addObserver(id, sendState);
-    sendState();
+    sendState(q.getState());
 
   } else {
     console.log(`Unknown queue '${queueId}`)

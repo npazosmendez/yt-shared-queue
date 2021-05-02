@@ -1,11 +1,12 @@
 // Global state
 var queueId: string;
-var currentVideoId: string;
-var lastServerUpdate: ServerUpdate;
+var currentVideoId: number;
+var lastServerUpdate: QueueState;
+var currentState: QueueState;
 var lastServerUpdateTime: number;
 
-type Video = { 'id': string, 'title': string, 'duration': number };
-type ServerUpdate = { 'id': string, 'videos': Video[], 'currentVideoTime': number };
+type Video = { 'id': number, 'youtubeId': string, 'title': string, 'duration': number };
+type QueueState = { 'id': string, 'videos': Video[], 'currentVideoTime': number };
 
 function newQueue() {
     var xmlHttp = new XMLHttpRequest();
@@ -35,7 +36,8 @@ function connectToQueue() {
 
         source.addEventListener('message', function (e) {
             console.log("Received server event:", e)
-            lastServerUpdate = JSON.parse(e.data) as ServerUpdate;
+            lastServerUpdate = JSON.parse(e.data) as QueueState;
+            currentState = lastServerUpdate;
             queueId = lastServerUpdate.id;
             renderQueue();
         }, false)
@@ -84,8 +86,8 @@ function renderQueue() {
 
     (document.getElementById("queue-name") as HTMLDivElement).innerHTML = "Queue " + queueId;
 
-    var currentTime = lastServerUpdate.currentVideoTime;
-    var videoQueue = lastServerUpdate.videos;
+    var currentTime = currentState.currentVideoTime;
+    var videoQueue = currentState.videos;
 
     if (!videoQueue.length) {
         console.log(`Queue ${queueId} is empty.`);
@@ -94,13 +96,12 @@ function renderQueue() {
         player.stopVideo();
         return;
     }
-    var newVideoId = videoQueue[0]['id'];
-    var newVideoTitle = videoQueue[0]['title'];
-    console.log("Updating queue from data", lastServerUpdate);
+    var newVideo = videoQueue[0];
+    console.log("Updating queue from data", currentState);
 
     let offset: number = Infinity;
 
-    if (currentVideoId == newVideoId) {
+    if (currentVideoId == newVideo['id']) {
         offset = Math.abs(currentTime - player.getCurrentTime());
     } else if (videoQueue.length > 1 && currentVideoId == videoQueue[1].id) {
         // already playing next one
@@ -108,14 +109,14 @@ function renderQueue() {
     }
 
     if (player.getPlayerState() in [YT.PlayerState.BUFFERING, YT.PlayerState.PLAYING] == false) {
-        console.log(`Starting video ${newVideoId}.`);
-        setCurrentVideo(newVideoId, currentTime);
+        console.log(`Starting video ${newVideo['id']}.`);
+        setCurrentVideo(newVideo['id'], newVideo['youtubeId'], currentTime);
     } else if (offset > 10) {
         console.log(`Updating time, off by ${offset}.`);
-        setCurrentVideo(newVideoId, currentTime);
+        setCurrentVideo(newVideo['id'], newVideo['youtubeId'], currentTime);
     }
 
-    (document.getElementById("current-video-title") as HTMLDivElement).innerHTML = newVideoTitle;
+    (document.getElementById("current-video-title") as HTMLDivElement).innerHTML = newVideo['title'];
     let ul = document.getElementById("queued-videos-titles") as HTMLDivElement;
     ul.innerHTML = '';
     for (let i = 1; i < videoQueue.length; i++) {
@@ -129,16 +130,15 @@ function renderQueue() {
     queue.style.display = "block";
 }
 
-function setCurrentVideo(id: string, startSeconds: number) {
+function setCurrentVideo(id: number, youtubeId : string, startSeconds: number) {
     currentVideoId = id;
-    player.loadVideoById(currentVideoId, startSeconds, "large");
+    player.loadVideoById(youtubeId, startSeconds, "large");
     player.playVideo();
 }
 
 function onVideoEnds() {
     console.log("Video ended, popping preemptively")
-    lastServerUpdate.videos.shift();
-    if (lastServerUpdate.videos.length) {
-        setCurrentVideo(lastServerUpdate.videos[0].id, 0);
-    }
+    currentState.currentVideoTime = 0;
+    currentState.videos.shift();
+    renderQueue();
 }
