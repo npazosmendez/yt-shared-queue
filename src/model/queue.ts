@@ -1,5 +1,6 @@
 import { Video } from "./video";
 
+type ObserverCallback = () => void;
 
 var queues: { [id: string] : Queue; } = {};
 
@@ -9,6 +10,7 @@ export class Queue {
     id : string;
     private currentVideoStartTime : number;
     private videos : Video[] = [];
+    private observers : { [id: string] : ObserverCallback; } = {};
 
     async pushVideoByUrl(videoUrl: string) {
         if (!this.videos.length) {
@@ -16,6 +18,17 @@ export class Queue {
         }
         const v = await Video.createFromUrl(videoUrl);
         this.videos.push(v);
+        this.updateQueue();
+        this.notifyObservers();
+    }
+
+    addObserver(id : string, callback : ObserverCallback) {
+        this.observers[id] = callback;
+    }
+
+    removeObserver(id : string) {
+        // TODO: check if exists?
+        delete this.observers[id];
     }
 
     getCurrentVideoTime() : number {
@@ -44,6 +57,13 @@ export class Queue {
                     this.currentVideoStartTime = 0;
                 }
             }
+        }
+    }
+
+    private notifyObservers() {
+        this.updateQueue();
+        for (let c in this.observers) {
+            this.observers[c]();
         }
     }
 

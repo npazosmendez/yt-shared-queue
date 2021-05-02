@@ -14,6 +14,8 @@ router.post('/:id/push', async function (req: express.Request, res: express.Resp
   console.log(req.body);
   const queueId = req.params.id;
   const videoUrl = req.body.url;
+  console.log(typeof(req.body))
+  console.log(videoUrl)
   const q = Queue.get(queueId);
   if (q && videoUrl) {
     q.pushVideoByUrl(videoUrl)
@@ -24,19 +26,43 @@ router.post('/:id/push', async function (req: express.Request, res: express.Resp
   }
 });
 
-router.get('/:id', async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+
+var uuid = 1; // TODO: if I keep this, use uuid lib
+router.get('/:id/state', async function (req: express.Request, res: express.Response, next: express.NextFunction) {
   const queueId = req.params.id;
   const q = Queue.get(queueId);
   if (q) {
-    // TODO: potential race condition
-    const videos =  q.getVideos();
-    const currentVideoTime = q.getCurrentVideoTime();
-    res.send(JSON.stringify({
-      'id': queueId,
-      'videos': videos.map(v => ({'id': v.id, 'title': v.title, 'duration': v.durationSeconds})),
-      'currentVideoTime': currentVideoTime,
-    }));
+    console.log(`New connection to queue ${queueId}`)
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    })
+    var id = (++uuid).toString();
+    var sendState = () => {
+      // TODO: consider taking state in callback and let the Queue itself compute it
+      console.log(`Sending queue ${queueId} update to ${id}`)
+      const videos =  q.getVideos();
+      const currentVideoTime = q.getCurrentVideoTime();
+      const state = JSON.stringify({
+        'id': queueId,
+        'videos': videos.map(v => ({'id': v.id, 'title': v.title, 'duration': v.durationSeconds})),
+        'currentVideoTime': currentVideoTime,
+      })
+      res.write("data: " + state + "\n\n")
+    }
+
+    req.on('close', () => {
+      console.log(`Connection closed for ${id} on queue ${queueId}`)
+      q.removeObserver(id);
+      res.end();
+    });
+
+    q.addObserver(id, sendState);
+    sendState();
+
   } else {
+    console.log(`Unknown queue '${queueId}`)
     res.sendStatus(404);
   }
 });

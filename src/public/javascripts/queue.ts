@@ -1,35 +1,67 @@
 // Global state
 var queueId: string;
 var currentVideoId: string;
-var lastServerUpdate : ServerUpdate;
-var lastServerUpdateTime : number;
+var lastServerUpdate: ServerUpdate;
+var lastServerUpdateTime: number;
 
-type Video = { 'id': string, 'title': string, 'duration' : number };
-type ServerUpdate = { 'id': string, 'videos': Video[], 'currentVideoTime': number};
+type Video = { 'id': string, 'title': string, 'duration': number };
+type ServerUpdate = { 'id': string, 'videos': Video[], 'currentVideoTime': number };
 
 function newQueue() {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("PUT", '/queue', false);
     xmlHttp.send(null);
 
+    // TODO: validate
     var data = JSON.parse(xmlHttp.responseText);
     queueId = data.id;
 
     if (queueId) {
         document.getElementById("queueIdInput")?.setAttribute("value", queueId);
+        connectToQueue();
     } else {
         let f = document.getElementById("queueIdInput") as HTMLInputElement;
         f.value = "ERROR!";
     }
-    updateQueueData();
-
 }
 
 function connectToQueue() {
-    // TODO: validate
     queueId = (document.getElementById("queueIdInput") as HTMLInputElement).value;
-    updateQueueData();
+
+    document.getElementById("queueIdInput")?.setAttribute("value", queueId);
+
+    if (!!window.EventSource) {
+        var source = new EventSource('/queue/' + queueId + "/state")
+
+        source.addEventListener('message', function (e) {
+            console.log("Received server event:", e)
+            lastServerUpdate = JSON.parse(e.data) as ServerUpdate;
+            queueId = lastServerUpdate.id;
+            renderQueue();
+        }, false)
+
+        source.addEventListener('open', function (e) {
+            console.log("Connected to event source")
+        }, false)
+
+        source.addEventListener('error', function (e) {
+            console.log("EventSource error:", e);
+            if (e.eventPhase == EventSource.CLOSED){
+                source.close();
+            }
+
+            if (source.readyState == EventSource.CLOSED) {
+                // TODO
+            }
+            else if (source.readyState == EventSource.CONNECTING) {
+                // TODO
+            }
+        }, false)
+    } else {
+        console.log("Your browser does not support SSE")
+    }
 }
+
 
 function addToQueue() {
     if (queueId) {
@@ -39,25 +71,7 @@ function addToQueue() {
         xmlHttp.setRequestHeader('Content-Type', 'application/json');
         xmlHttp.send(`{"url": "${videoUrl}"}`);
     }
-
-    updateQueueData();
 }
-
-function updateQueueData() {
-    if (!queueId) {
-        console.log("No queue to update.")
-        return;
-    }
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", '/queue/' + queueId, false);
-    xmlHttp.send(null);
-
-    lastServerUpdate = JSON.parse(xmlHttp.responseText) as ServerUpdate;
-    queueId = lastServerUpdate.id;
-
-    renderQueue();
-}
-
 
 function renderQueue() {
     var currentQueue = document.getElementById("current-queue") as HTMLInputElement;
@@ -68,14 +82,14 @@ function renderQueue() {
         currentQueue.style.display = "block";
     }
 
-    (document.getElementById("queue-name") as HTMLInputElement).innerHTML = "Queue " + queueId;
+    (document.getElementById("queue-name") as HTMLDivElement).innerHTML = "Queue " + queueId;
 
     var currentTime = lastServerUpdate.currentVideoTime;
     var videoQueue = lastServerUpdate.videos;
 
     if (!videoQueue.length) {
         console.log(`Queue ${queueId} is empty.`);
-        var queue = document.getElementById("queue") as HTMLInputElement;
+        var queue = document.getElementById("queue") as HTMLDivElement;
         queue.style.display = "none";
         player.stopVideo();
         return;
@@ -84,7 +98,7 @@ function renderQueue() {
     var newVideoTitle = videoQueue[0]['title'];
     console.log("Updating queue from data", lastServerUpdate);
 
-    let offset : number = Infinity;
+    let offset: number = Infinity;
 
     if (currentVideoId == newVideoId) {
         offset = Math.abs(currentTime - player.getCurrentTime());
@@ -101,8 +115,8 @@ function renderQueue() {
         setCurrentVideo(newVideoId, currentTime);
     }
 
-    (document.getElementById("current-video-title") as HTMLInputElement).innerHTML = newVideoTitle;
-    let ul = document.getElementById("queued-videos-titles") as HTMLInputElement;
+    (document.getElementById("current-video-title") as HTMLDivElement).innerHTML = newVideoTitle;
+    let ul = document.getElementById("queued-videos-titles") as HTMLDivElement;
     ul.innerHTML = '';
     for (let i = 1; i < videoQueue.length; i++) {
         let li = document.createElement("li");
@@ -111,11 +125,11 @@ function renderQueue() {
         ul?.appendChild(li);
     }
 
-    var queue = document.getElementById("queue") as HTMLInputElement;
+    var queue = document.getElementById("queue") as HTMLDivElement;
     queue.style.display = "block";
 }
 
-function setCurrentVideo(id : string, startSeconds : number) {
+function setCurrentVideo(id: string, startSeconds: number) {
     currentVideoId = id;
     player.loadVideoById(currentVideoId, startSeconds, "large");
     player.playVideo();
@@ -128,8 +142,3 @@ function onVideoEnds() {
         setCurrentVideo(lastServerUpdate.videos[0].id, 0);
     }
 }
-
-
-let interval = setInterval(function () {
-    updateQueueData();
-}, 5000);
