@@ -7,8 +7,6 @@ import path from 'path';
 import morgan from 'morgan';
 import http from 'http';
 import errorHandler from "errorhandler";
-import WebSocket from 'ws';
-import { connectionHandler } from './websocket/handler';
 
 process.env.VERSION = 'v0.1.0';
 
@@ -17,9 +15,6 @@ var queueRouter = require('./routes/queue');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
-
-wss.on('connection', connectionHandler);
 
 // view engine setup
 app.set('views', path.join(__dirname, '../views'));

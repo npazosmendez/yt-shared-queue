@@ -73,6 +73,7 @@ export class Queue {
     }
 
     private updateQueue() {
+        // FIXME: multiple videos may have ended
         if (this.videos.length) {
             const elapsed = Math.round(Date.now() / 1000) - this.currentVideoStartTime;
             const duration = this.videos[0][1].durationSeconds;
