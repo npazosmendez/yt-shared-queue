@@ -4,30 +4,31 @@ block content
 
   div(class="container d-flex h-100 flex-column")
 
-    div(class="row")
-      a(href="/", class="btn")
-        h1(id='title') YTSharedQueue
+    div(class="row d-flex homepage-button ")
+      a(href="/", class="btn w-100")
+        span(id="title" class="w-100") YTSharedQueue
 
-    div(id='current-queue', class="row flex-fill justify-content-center h-100 flex-grow-1")
 
-        div(class="row")
-            div(class='col-sm-12')
-                p(id='queue-name')
+    //- add this class to make the row fill the remaining height
+    //- class=flex-fill
+    div(class="row d-flex")
+        div(class='col my-auto')
+            div(class="row")
+                h2(id='queue-name' class='col') #{queueId}
+            div(class="row")
+                div(class='col-sm-6 my-auto')
+                    div(class='child player', id='player')
 
-        div(class="row")
-            div(class='col-sm-6')
-                div(class='child player', id='player')
+                div(class='col-sm-6')
+                    p(id='createdQueue')
+                    div(class='queue-controls')
+                    div(class="input-group queue-push")
+                        input(class="form-control mr-1", type="text", name="videoUrlInput", id="videoUrlInput", value="https://www.youtube.com/watch?v=zBJU9ndpH1Q", placeholder="URL")
+                        button(class="btn btn-primary", onclick='addToQueue()') Add to queue
 
-            div(class='col-sm-6')
-                p(id='createdQueue')
-                div(class='queue-controls')
-                div(class="input-group queue-push")
-                    input(class="form-control mr-1", type="text", name="videoUrlInput", id="videoUrlInput", value="https://www.youtube.com/watch?v=zBJU9ndpH1Q", placeholder="URL")
-                    button(class="btn btn-primary", onclick='addToQueue()') Add to queue
-
-                div(class="card", style="width: 100%;", id='queue')
-                    div(class="card-header" id="current-video-title")
-                    ul(class="list-group list-group-flush" id="queued-videos-titles")
+                    div(class="card", style="width: 100%;", id='queue')
+                        div(class="card-header" id="current-video-title")
+                        ul(class="list-group list-group-flush" id="queued-videos-titles")
 
 
         script(src='/javascripts/player.js')

@@ -12,7 +12,7 @@ body {
   }
 
 .flex-fill {
-    flex:1;
+  flex: 1 1 auto;
 }
 
 
@@ -40,6 +40,7 @@ button {
   font-weight: bold;
   color: #0fa3e7;
   margin-top: 30px;
+  text-align: right;
 }
 
 #footer {
@@ -54,6 +55,7 @@ button {
 #title {
   font-weight: bold;
   color: #0fa3f7;
+  font-size: xx-large;
 }
 
 #player {
@@ -85,4 +87,15 @@ button {
   margin: 0px;
   text-align: center;
   padding: 0%;
+}
+
+
+.index-title {
+  margin-bottom: 60px;
+}
+
+.homepage-button {
+  padding-top: 100px;
+  text-align: center;
+  font-size: xx-large
 }

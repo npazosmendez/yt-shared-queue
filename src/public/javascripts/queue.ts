@@ -56,15 +56,6 @@ function addToQueue() {
 }
 
 function renderQueue() {
-    var currentQueue = document.getElementById("current-queue") as HTMLInputElement;
-    if (!queueId) {
-        currentQueue.style.display = "none";
-        return;
-    } else {
-        currentQueue.style.display = "block";
-    }
-
-    (document.getElementById("queue-name") as HTMLDivElement).innerHTML = "Queue " + queueId;
 
     var currentTime = currentState.currentVideoTime;
     var videoQueue = currentState.videos;
