@@ -6,24 +6,14 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+
+
+
 button {
-  margin: 40px;
+  transition-duration: 0.2s !important;
 }
 
-/* button {
-  display: block;
-  transition-duration: 0s;
-  background-color: white;
-  color: black;
-  border: 2px solid #0fa3e7;
-  width: 100%;
-  font-size: 18px;
-  margin-bottom: 4px;
-  margin-top: 4px;
-  border-radius: 10px
-}
-
-button:hover {
+/* button:hover {
   background-color: #0fa3e7;
   color: white;
 } */
@@ -83,7 +73,7 @@ button:hover {
 
 #title {
   font-weight: bold;
-  color: #0fa3e7;
+  color: #0fa3f7;
 }
 
 #player {
@@ -94,4 +84,26 @@ button:hover {
 #queued-videos-titles {
   max-height: 200px;
   overflow-y: scroll;
+}
+
+.video-title {
+  display: table-cell;
+  padding: 0 8px;
+  vertical-align: middle;
+
+}
+
+
+.video-remove-button {
+  vertical-align: middle;
+  float: right;
+  display: table-cell;
+  margin: 0px;
+  padding: 0px;
+}
+
+.video-remove-icon {
+  margin: 0px;
+  text-align: center;
+  padding: 0%;
 }

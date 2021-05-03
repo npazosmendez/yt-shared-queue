@@ -47,6 +47,16 @@ export class Queue {
           }
     }
 
+    removeVideo(id : number) : boolean {
+        var i = this.videos.findIndex(iv => iv[0] == id);
+        if (i != -1) {
+            this.videos.splice(i, 1);
+            this.updateQueue();
+            this.notifyObservers();
+        }
+        return i != -1;;
+    }
+
     private getCurrentVideoTime() : number {
         this.updateQueue();
         if (this.videos.length) {

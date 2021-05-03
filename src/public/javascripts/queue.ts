@@ -120,14 +120,33 @@ function renderQueue() {
     let ul = document.getElementById("queued-videos-titles") as HTMLDivElement;
     ul.innerHTML = '';
     for (let i = 1; i < videoQueue.length; i++) {
-        let li = document.createElement("li");
-        li.innerHTML = videoQueue[i].title;
-        li.classList.add("list-group-item");
-        ul?.appendChild(li);
+        var raw = `
+            <li class="list-group-item">
+                <div class="input-group" style="display:table; width:100%;">
+                    <span class="video-title">
+                        ${videoQueue[i].title}
+                    </span>
+                    <button type="button" class="btn btn-outline-secondary video-remove-button" onclick=removeVideo(${videoQueue[i].id})>
+                        <i class="bi bi-trash video-remove-icon"></i>
+                    </button>
+                </div>
+            </li>`;
+        var container = document.createElement("div");
+        container.innerHTML = raw;
+        ul?.appendChild(container);
     }
 
     var queue = document.getElementById("queue") as HTMLDivElement;
     queue.style.display = "block";
+}
+
+function removeVideo(id : number) {
+    if (queueId) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("PUT", '/queue/' + queueId + '/remove-video/' + id, false);
+        xmlHttp.send(null);
+        // TODO: validate response
+    }
 }
 
 function setCurrentVideo(id: number, youtubeId : string, startSeconds: number) {
