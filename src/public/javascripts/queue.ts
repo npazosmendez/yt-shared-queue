@@ -23,24 +23,21 @@ function connectToQueue() {
         }, false)
 
         source.addEventListener('open', function (e) {
-            console.log("Connected to event source")
+            console.log("Connected to SSE source.")
         }, false)
 
         source.addEventListener('error', function (e) {
             console.log("EventSource error:", e);
-            if (e.eventPhase == EventSource.CLOSED){
+            if (e.eventPhase == EventSource.CLOSED || source.readyState == EventSource.CLOSED) {
                 source.close();
-            }
-
-            if (source.readyState == EventSource.CLOSED) {
-                // TODO
-            }
-            else if (source.readyState == EventSource.CONNECTING) {
-                // TODO
+                console.log("SSE source connection was closed, reconnecting in 3 seconds...")
+                setTimeout(() => connectToQueue(), 3000);
+            } else if (source.readyState == EventSource.CONNECTING) {
+                console.log("SSE source is connecting...")
             }
         }, false)
     } else {
-        console.log("Your browser does not support SSE")
+        console.log("Your browser does not support SSE.")
     }
 }
 
@@ -133,6 +130,15 @@ function setCurrentVideo(id: number, youtubeId : string, startSeconds: number) {
     currentVideoId = id;
     player.loadVideoById(youtubeId, startSeconds, "large");
     player.playVideo();
+    // TODO: find a better solution for this. Maybe have a 'play' or 'connect' button
+    // appear after the player is ready.
+    setTimeout(() => {
+        if (playerState == YT.PlayerState.UNSTARTED) {
+            // Probably because autoplay is not enabled, try with the video muted
+            player.mute();
+            player.playVideo();
+        }
+    }, 800);
 }
 
 function onVideoEnds() {

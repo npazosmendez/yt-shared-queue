@@ -1,4 +1,5 @@
 var player : YT.Player;
+var playerState : YT.PlayerState;
 
 // 2. This code loads the IFrame Player API code asynchronously.
 var tag = document.createElement('script');
@@ -12,15 +13,15 @@ firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
 
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
-    playerVars: {
-        'autoplay': 1,
-        'controls': 1,
-        'showinfo': 0
-    },
-    events: {
-        'onReady': _onPlayerReady,
-        'onStateChange': onPlayerStateChange
-    }
+        playerVars: {
+            'autoplay': 1,
+            'controls': 1,
+            'showinfo': 0
+        },
+        events: {
+            'onReady': _onPlayerReady,
+            'onStateChange': onPlayerStateChange
+        }
     });
 }
 
@@ -29,8 +30,8 @@ function _onPlayerReady(event : any) {
     onPlayerReady();
 }
 
-
 function onPlayerStateChange(event : any) {
+    playerState = event.data;
     if(event.data === 0) {
         onVideoEnds();
     }
