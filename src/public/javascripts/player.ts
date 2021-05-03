@@ -18,14 +18,15 @@ function onYouTubeIframeAPIReady() {
         'showinfo': 0
     },
     events: {
-        'onReady': onPlayerReady,
+        'onReady': _onPlayerReady,
         'onStateChange': onPlayerStateChange
     }
     });
 }
 
 // 4. The API will call this function when the video player is ready.
-function onPlayerReady(event : any) {
+function _onPlayerReady(event : any) {
+    onPlayerReady();
 }
 
 

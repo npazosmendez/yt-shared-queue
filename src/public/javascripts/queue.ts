@@ -142,4 +142,15 @@ function onVideoEnds() {
     renderQueue();
 }
 
-window.onload = connectToQueue;
+var playerReady = false;
+var siteLoaded = false;
+
+function onPlayerReady() {
+    playerReady = true;
+    if(playerReady && siteLoaded) connectToQueue();
+}
+
+window.onload = () => {
+    siteLoaded = true;
+    if(playerReady && siteLoaded) connectToQueue();
+}
