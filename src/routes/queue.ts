@@ -69,9 +69,9 @@ router.put('/:id/remove-video/:video', async function (req: express.Request, res
     }
 
     if (q.removeVideo(videoId)) {
-      res.sendStatus(410);
-    } else {
       res.sendStatus(200);
+    } else {
+      res.sendStatus(410);
     }
 
   } else {
