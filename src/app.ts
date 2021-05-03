@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import './model/store';
 import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
@@ -5,9 +9,7 @@ import http from 'http';
 import errorHandler from "errorhandler";
 import WebSocket from 'ws';
 import { connectionHandler } from './websocket/handler';
-import dotenv from 'dotenv';
 
-dotenv.config();
 process.env.VERSION = 'v0.1.0';
 
 var indexRouter = require('./routes/index');

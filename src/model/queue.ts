@@ -1,9 +1,10 @@
+import { store } from "./store";
 import { Video } from "./video";
 
 export type QueueState = {id : string, currentVideoTime : number, videos : {id: number, youtubeId: string, title: string, duration : number }[]};
-type ObserverCallback = (s: QueueState) => void;
+type SubscriberCallback = (s: QueueState) => void;
 
-var queues: { [id: string] : Queue; } = {};
+var subscriptions : { [queueId : string] : { [subscriberId: string] : SubscriberCallback; } } = {};
 
 // TODO: race conditions everywhere
 export class Queue {
@@ -11,7 +12,6 @@ export class Queue {
     id : string;
     private currentVideoStartTime : number;
     private videos : [number, Video][] = [];
-    private observers : { [id: string] : ObserverCallback; } = {};
     private videoIdInc = 1;
 
     async pushVideoByUrl(videoUrl: string) {
@@ -20,17 +20,19 @@ export class Queue {
         }
         const v = await Video.createFromUrl(videoUrl);
         this.videos.push([this.videoIdInc++, v]);
+        this.save();
         this.updateQueue();
         this.notifyObservers();
     }
 
-    addObserver(id : string, callback : ObserverCallback) {
-        this.observers[id] = callback;
+    addObserver(id : string, callback : SubscriberCallback) {
+        var queueSubscriptions = subscriptions[this.id] ? subscriptions[this.id] : subscriptions[this.id] = {};
+        queueSubscriptions[id] = callback;
     }
 
     removeObserver(id : string) {
         // TODO: check if exists?
-        delete this.observers[id];
+        delete subscriptions[this.id][id];
     }
 
     getState() : QueueState {
@@ -54,6 +56,7 @@ export class Queue {
             if (i == 0) {
                 this.currentVideoStartTime = Math.round(Date.now() / 1000);
             }
+            this.save();
             this.updateQueue();
             this.notifyObservers();
         }
@@ -80,25 +83,33 @@ export class Queue {
                 } else {
                     this.currentVideoStartTime = 0;
                 }
+                this.save();
             }
         }
     }
 
     private notifyObservers() {
         var s = this.getState();
-        for (let c in this.observers) {
-            this.observers[c](s);
+        var queueSubscriptions = subscriptions[this.id] || {};
+        for (let c in queueSubscriptions) {
+            queueSubscriptions[c](s);
         }
     }
 
     constructor() {
         this.id = randomStr();
         this.currentVideoStartTime = 0;
-        queues[this.id] = this;
+        store.put(this.id, this);
     }
 
     static get(queueId: string): Queue | undefined {
-        return queues[queueId];
+        var result = store.get(queueId) as Queue;
+        Object.setPrototypeOf(result, Queue.prototype);
+        return result;
+    }
+
+    private save() {
+        store.put(this.id, this);
     }
 }
 
