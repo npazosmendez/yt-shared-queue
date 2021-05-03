@@ -116,7 +116,16 @@ function renderQueue() {
         setCurrentVideo(newVideo['id'], newVideo['youtubeId'], currentTime);
     }
 
-    (document.getElementById("current-video-title") as HTMLDivElement).innerHTML = newVideo['title'];
+    (document.getElementById("current-video-title") as HTMLDivElement).innerHTML = `
+    <div class="input-group" style="display:table; width:100%;">
+        <span class="video-title">
+                ${newVideo['title']}
+            </span>
+            <button type="button" class="btn btn-outline-secondary video-remove-button" onclick=removeVideo(${newVideo['id']})>
+                <i class="bi bi-skip-end-fill video-remove-icon"></i>
+            </button>
+            </div>
+    `;
     let ul = document.getElementById("queued-videos-titles") as HTMLDivElement;
     ul.innerHTML = '';
     for (let i = 1; i < videoQueue.length; i++) {

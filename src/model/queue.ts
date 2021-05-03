@@ -51,6 +51,9 @@ export class Queue {
         var i = this.videos.findIndex(iv => iv[0] == id);
         if (i != -1) {
             this.videos.splice(i, 1);
+            if (i == 0) {
+                this.currentVideoStartTime = Math.round(Date.now() / 1000);
+            }
             this.updateQueue();
             this.notifyObservers();
         }
