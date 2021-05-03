@@ -105,7 +105,7 @@ export class Queue {
 
     static get(queueId: string): Queue | undefined {
         var result = store.get(queueId) as Queue;
-        Object.setPrototypeOf(result, Queue.prototype);
+        if (result) Object.setPrototypeOf(result, Queue.prototype);
         return result;
     }
 

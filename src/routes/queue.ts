@@ -24,6 +24,22 @@ router.post('/:id/push', async function (req: express.Request, res: express.Resp
   }
 });
 
+router.get('/:id', function(req : express.Request, res : express.Response, next : express.RequestHandler) {
+  const queueId = req.params.id;
+  const q = Queue.get(queueId);
+  if (q) {
+    res.render('queue', {'queueId': queueId});
+  } else {
+    res.render('error', {
+      'error': {
+        'status': 404,
+        'stack': ''
+      },
+      'message': `Queue ${queueId} does not exist`
+    });
+  }
+});
+
 
 var uuid = 1; // TODO: if I keep this, use uuid lib
 router.get('/:id/state', async function (req: express.Request, res: express.Response, next: express.NextFunction) {

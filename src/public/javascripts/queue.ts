@@ -1,5 +1,6 @@
 // Global state
-var queueId: string;
+
+const queueId : string = document.currentScript?.getAttribute('queueId') || 'undefined';
 var currentVideoId: number;
 var lastServerUpdate: QueueState;
 var currentState: QueueState;
@@ -8,29 +9,8 @@ var lastServerUpdateTime: number;
 type Video = { 'id': number, 'youtubeId': string, 'title': string, 'duration': number };
 type QueueState = { 'id': string, 'videos': Video[], 'currentVideoTime': number };
 
-function newQueue() {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("PUT", '/queue', false);
-    xmlHttp.send(null);
-
-    // TODO: validate
-    var data = JSON.parse(xmlHttp.responseText);
-    queueId = data.id;
-
-    if (queueId) {
-        document.getElementById("queueIdInput")?.setAttribute("value", queueId);
-        connectToQueue();
-    } else {
-        let f = document.getElementById("queueIdInput") as HTMLInputElement;
-        f.value = "ERROR!";
-    }
-}
 
 function connectToQueue() {
-    queueId = (document.getElementById("queueIdInput") as HTMLInputElement).value;
-
-    document.getElementById("queueIdInput")?.setAttribute("value", queueId);
-
     if (!!window.EventSource) {
         var source = new EventSource('/queue/' + queueId + "/state")
 
@@ -38,7 +18,7 @@ function connectToQueue() {
             console.log("Received server event:", e)
             lastServerUpdate = JSON.parse(e.data) as QueueState;
             currentState = lastServerUpdate;
-            queueId = lastServerUpdate.id;
+            // assert(queueId == lastServerUpdate.id);
             renderQueue();
         }, false)
 
@@ -170,3 +150,5 @@ function onVideoEnds() {
     currentState.videos.shift();
     renderQueue();
 }
+
+window.onload = connectToQueue;
