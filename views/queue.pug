@@ -2,29 +2,35 @@ extends layout
 
 block content
 
-  div(id='current-queue', class="row")
+  div(class="container d-flex h-100 flex-column")
 
     div(class="row")
-      div(class='col-sm-12')
-        p(id='queue-name')
+      a(href="/", class="btn")
+        h1(id='title') YTSharedQueue
 
-    div(class="row justify-content-center h-100 flex-grow-1")
-      div(class='col-sm-6')
-        div(class='child player', id='player')
+    div(id='current-queue', class="row flex-fill justify-content-center h-100 flex-grow-1")
 
-      div(class='col-sm-6')
-        p(id='createdQueue')
-        div(class='queue-controls')
-          div(class="input-group queue-push")
-            input(class="form-control mr-1", type="text", name="videoUrlInput", id="videoUrlInput", value="https://www.youtube.com/watch?v=zBJU9ndpH1Q", placeholder="URL")
-            button(class="btn btn-primary", onclick='addToQueue()') Add to queue
+        div(class="row")
+            div(class='col-sm-12')
+                p(id='queue-name')
 
-          div(class="card", style="width: 100%;", id='queue')
-            div(class="card-header" id="current-video-title")
-            ul(class="list-group list-group-flush" id="queued-videos-titles")
+        div(class="row")
+            div(class='col-sm-6')
+                div(class='child player', id='player')
+
+            div(class='col-sm-6')
+                p(id='createdQueue')
+                div(class='queue-controls')
+                div(class="input-group queue-push")
+                    input(class="form-control mr-1", type="text", name="videoUrlInput", id="videoUrlInput", value="https://www.youtube.com/watch?v=zBJU9ndpH1Q", placeholder="URL")
+                    button(class="btn btn-primary", onclick='addToQueue()') Add to queue
+
+                div(class="card", style="width: 100%;", id='queue')
+                    div(class="card-header" id="current-video-title")
+                    ul(class="list-group list-group-flush" id="queued-videos-titles")
 
 
-    script(src='/javascripts/player.js')
-    script(src='/javascripts/queue.js', queueId=queueId)
+        script(src='/javascripts/player.js')
+        script(src='/javascripts/queue.js', queueId=queueId)
 
   div(id="footer") #{footer}

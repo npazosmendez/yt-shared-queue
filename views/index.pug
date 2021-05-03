@@ -4,8 +4,16 @@ block content
 
   script(src='/javascripts/index.js')
 
-  div(class='queue-connection container align-content-center flex-wrap')
-    div(class="input-group")
-      input(class="form-control mr-1", type="text", name="queueId", id="queueIdInput", value="", placeholder="Queue ID")
-      button(class="btn btn-primary mr-1", onclick='goToQueue()') Connect
-      button(class="btn btn-primary", onclick='newQueue()') New queue
+  div(class="container d-flex h-100 flex-column justify-content-center")
+
+    div(class="row justify-content-center")
+      h1(id='title') YTSharedQueue
+
+    div(class="row d-flex justify-content-start")
+      div(class='col-12 my-auto')
+          div(class="input-group")
+            input(class="form-control mr-1", type="text", name="queueId", id="queueIdInput", value="", placeholder="Queue ID")
+            button(class="btn btn-primary mr-1", onclick='goToQueue()') Connect
+            button(class="btn btn-primary", onclick='newQueue()') New queue
+
+
