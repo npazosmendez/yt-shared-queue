@@ -127,6 +127,7 @@ function renderQueue() {
             </div>
     `;
     let ul = document.getElementById("queued-videos-titles") as HTMLDivElement;
+    ul.innerHTML = '';
     for (let i = 1; i < videoQueue.length; i++) {
         var raw = `
             <li class="list-group-item">
