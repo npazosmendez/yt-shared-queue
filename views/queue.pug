@@ -8,13 +8,15 @@ block content
       a(href="/", class="btn w-100")
         span(id="title" class="w-100") YTSharedQueue
 
-
     //- add this class to make the row fill the remaining height
     //- class=flex-fill
     div(class="row d-flex")
         div(class='col my-auto')
             div(class="row")
-                h2(id='queue-name' class='col') #{queueId}
+                h2(id='queue-name' class='col')
+                    =queueId
+                    i(id='connected-icon', class="bi bi-wifi connection-status-icon", style="display: none;")
+                    i(id='disconnected-icon', class="bi bi-wifi-off connection-status-icon")
             div(class="row")
                 div(class='col-sm-6 my-auto')
                     div(class='child player', id='player')
@@ -25,6 +27,7 @@ block content
                     div(class="input-group queue-push")
                         input(class="form-control mr-1", type="text", name="videoUrlInput", id="videoUrlInput", value="https://www.youtube.com/watch?v=zBJU9ndpH1Q", placeholder="URL")
                         button(class="btn btn-primary", onclick='addToQueue()') Add to queue
+
 
                     div(class="card", style="width: 100%;", id='queue')
                         div(class="card-header" id="current-video-title")

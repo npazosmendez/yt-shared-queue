@@ -12,6 +12,9 @@ type QueueState = { 'id': string, 'videos': Video[], 'currentVideoTime': number 
 
 function connectToQueue() {
     if (!!window.EventSource) {
+        var connectedIcon = document.getElementById("connected-icon") as HTMLElement;
+        var disconnectedIcon = document.getElementById("disconnected-icon") as HTMLElement;
+
         var source = new EventSource('/queue/' + queueId + "/state")
 
         source.addEventListener('message', function (e) {
@@ -23,6 +26,8 @@ function connectToQueue() {
         }, false)
 
         source.addEventListener('open', function (e) {
+            connectedIcon.style.display = "inline";
+            disconnectedIcon.style.display = "none";
             console.log("Connected to SSE source.")
         }, false)
 
@@ -30,6 +35,8 @@ function connectToQueue() {
             console.log("EventSource error:", e);
             if (e.eventPhase == EventSource.CLOSED || source.readyState == EventSource.CLOSED) {
                 source.close();
+                connectedIcon.style.display = "none";
+                disconnectedIcon.style.display = "inline";
                 console.log("SSE source connection was closed, reconnecting in 3 seconds...")
                 setTimeout(() => connectToQueue(), 3000);
             } else if (source.readyState == EventSource.CONNECTING) {

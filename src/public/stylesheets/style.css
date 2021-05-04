@@ -36,8 +36,8 @@ button {
 
 
 #queue-name {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 40px;
+  font-weight: normal;
   color: #0fa3e7;
   margin-top: 30px;
   text-align: right;
@@ -89,6 +89,19 @@ button {
   padding: 0%;
 }
 
+.connection-status-icon {
+  margin-left: 10px;
+  text-align: center;
+  padding: 0%;
+}
+
+#connected-icon {
+  color: rgb(0, 200, 150);
+}
+
+#disconnected-icon {
+  color: grey;
+}
 
 .index-title {
   margin-bottom: 60px;
@@ -109,3 +122,4 @@ button {
 .invalid-input {
   box-shadow: 0 0 0 .2rem rgba(255, 0, 0, 0.3);
 }
+
