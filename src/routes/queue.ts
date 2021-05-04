@@ -74,7 +74,6 @@ router.get('/:queueId/state',
         });
 
         q.addObserver(id, sendState);
-        sendState(q.getState());
     }
 );
 

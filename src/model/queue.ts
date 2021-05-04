@@ -1,7 +1,7 @@
 import { store } from "./store";
 import { Video } from "./video";
 
-export type QueueState = {id : string, currentVideoTime : number, videos : {id: number, youtubeId: string, title: string, duration : number }[]};
+export type QueueState = {id : string, currentVideoTime : number, listeners : number, videos : {id: number, youtubeId: string, title: string, duration : number }[]};
 type SubscriberCallback = (s: QueueState) => void;
 
 var subscriptions : { [queueId : string] : { [subscriberId: string] : SubscriberCallback; } } = {};
@@ -28,11 +28,13 @@ export class Queue {
     addObserver(id : string, callback : SubscriberCallback) {
         var queueSubscriptions = subscriptions[this.id] ? subscriptions[this.id] : subscriptions[this.id] = {};
         queueSubscriptions[id] = callback;
+        this.notifyObservers();
     }
 
     removeObserver(id : string) {
         // TODO: check if exists?
         delete subscriptions[this.id][id];
+        this.notifyObservers();
     }
 
     getState() : QueueState {
@@ -46,6 +48,7 @@ export class Queue {
                 'duration': iv[1].durationSeconds
             })),
             'currentVideoTime': this.getCurrentVideoTime(),
+            'listeners': Object.keys(subscriptions[this.id] || {}).length,
           }
     }
 

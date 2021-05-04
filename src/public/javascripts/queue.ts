@@ -7,7 +7,7 @@ var currentState: QueueState;
 var lastServerUpdateTime: number;
 
 type Video = { 'id': number, 'youtubeId': string, 'title': string, 'duration': number };
-type QueueState = { 'id': string, 'videos': Video[], 'currentVideoTime': number };
+type QueueState = { 'id': string, 'videos': Video[], 'currentVideoTime': number, 'listeners': number };
 
 
 function connectToQueue() {
@@ -69,6 +69,8 @@ function renderQueue() {
 
     var currentTime = currentState.currentVideoTime;
     var videoQueue = currentState.videos;
+
+    (document.getElementById("listeners") as HTMLSpanElement).innerHTML = currentState.listeners.toString();
 
     if (!videoQueue.length) {
         console.log(`Queue ${queueId} is empty.`);

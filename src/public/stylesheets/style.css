@@ -27,7 +27,8 @@ button {
 
 
 .queue-push {
-  margin-bottom: 35px;
+  margin-top: 10px;
+  margin-bottom: 25px;
 }
 
 #queue-connection {
@@ -41,6 +42,15 @@ button {
   color: #0fa3e7;
   margin-top: 30px;
   text-align: right;
+}
+
+.queue-info {
+  font-size: 20px;
+  font-weight: normal;
+  color: black;
+  margin-top: 5px;
+  text-align: right;
+  vertical-align: middle;
 }
 
 #footer {
@@ -101,6 +111,11 @@ button {
 }
 
 .connection-status-icon {
+  margin-left: 10px;
+  text-align: center;
+  padding: 0%;
+}
+.listeners-icon {
   margin-left: 10px;
   text-align: center;
   padding: 0%;
