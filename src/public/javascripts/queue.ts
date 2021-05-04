@@ -101,17 +101,17 @@ function renderQueue() {
     <div class="input-group" style="display:table; width:100%;">
         <span class="video-title">
                 ${newVideo['title']}
-            </span>
-            <button type="button" class="btn btn-outline-secondary video-remove-button" onclick=removeVideo(${newVideo['id']})>
-                <i class="bi bi-skip-end-fill video-remove-icon"></i>
-            </button>
-            </div>
+        </span>
+        <button type="button" class="btn btn-outline-secondary video-remove-button" onclick=removeVideo(${newVideo['id']})>
+            <i class="bi bi-skip-end-fill video-remove-icon"></i>
+        </button>
+    </div>
     `;
     let ul = document.getElementById("queued-videos-titles") as HTMLDivElement;
     ul.innerHTML = '';
     for (let i = 1; i < videoQueue.length; i++) {
         var raw = `
-            <li class="list-group-item">
+            <li class="list-group-item video-in-queue">
                 <div class="input-group" style="display:table; width:100%;">
                     <span class="video-title">
                         ${videoQueue[i].title}
