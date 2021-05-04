@@ -44,11 +44,17 @@ function connectToQueue() {
 
 function addToQueue() {
     if (queueId) {
-        var videoUrl = (document.getElementById("videoUrlInput") as HTMLInputElement).value;
+        var input = document.getElementById("videoUrlInput") as HTMLInputElement;
+        var videoUrl = input.value;
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("POST", '/queue/' + queueId + '/push', false);
         xmlHttp.setRequestHeader('Content-Type', 'application/json');
         xmlHttp.send(`{"url": "${videoUrl}"}`);
+        if (xmlHttp.status != 200) {
+            input.classList.add("invalid-input");
+        } else {
+            input.classList.remove("invalid-input");
+        }
     }
 }
 

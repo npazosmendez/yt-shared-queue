@@ -27,14 +27,14 @@ router.put('/', function (req: express.Request, res: express.Response, next: exp
 router.post('/:queueId/push',
     getQueueOr404,
     async function (req: express.Request, res: express.Response, next: express.NextFunction) {
-        const videoUrl = req.body.url;
-        if (videoUrl) {
+        const videoId = Video.getIdFromURL(req.body.url);
+        if (videoId) {
             const q = Context.get(req).queue;
-            q.pushVideoByUrl(videoUrl)
+            q.pushVideoById(videoId)
                 .then(() => res.sendStatus(200))
                 .catch(next);
         } else {
-            res.sendStatus(404);
+            res.sendStatus(400);
         }
     }
 );

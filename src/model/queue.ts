@@ -14,11 +14,11 @@ export class Queue {
     private videos : [number, Video][] = [];
     private videoIdInc = 1;
 
-    async pushVideoByUrl(videoUrl: string) {
+    async pushVideoById(videoId: string) {
+        const v = await Video.createFromId(videoId);
         if (!this.videos.length) {
             this.currentVideoStartTime = Math.round(Date.now() / 1000);
         }
-        const v = await Video.createFromUrl(videoUrl);
         this.videos.push([this.videoIdInc++, v]);
         this.save();
         this.updateQueue();
