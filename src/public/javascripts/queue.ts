@@ -138,7 +138,7 @@ function setCurrentVideo(id: number, youtubeId : string, startSeconds: number) {
             player.mute();
             player.playVideo();
         }
-    }, 800);
+    }, 1500);
 }
 
 function onVideoEnds() {
