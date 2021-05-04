@@ -1,5 +1,5 @@
 import express from 'express';
-import { Queue, QueueState } from '../model/queue';
+import { Queue, QueueState, addObserver, removeObserver } from '../model/queue';
 import { Video } from '../model/video';
 import Context from './context';
 var router = express.Router();
@@ -69,11 +69,11 @@ router.get('/:queueId/state',
 
         req.on('close', () => {
             console.log(`Connection closed for ${id} on queue ${q.id}`)
-            q.removeObserver(id);
+            removeObserver(q.id, id);
             res.end();
         });
 
-        q.addObserver(id, sendState);
+        addObserver(q.id, id, sendState);
     }
 );
 

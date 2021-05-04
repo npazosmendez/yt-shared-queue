@@ -6,6 +6,24 @@ type SubscriberCallback = (s: QueueState) => void;
 
 var subscriptions : { [queueId : string] : { [subscriberId: string] : SubscriberCallback; } } = {};
 
+// TODO: these functions are not methods to avoid triggering observers notifications with out of date instances of Queues. Works for now, but I'm considering queue-scoped locks. Or maybe a RDBMS.
+export function addObserver(queueId : string, observerId : string, callback : SubscriberCallback) {
+    const q = Queue.get(queueId);
+    if (q) {
+        var queueSubscriptions = subscriptions[q.id] ? subscriptions[q.id] : subscriptions[q.id] = {};
+        queueSubscriptions[observerId] = callback;
+        q.notifyObservers();
+    }
+}
+
+export function removeObserver(queueId : string, observerId : string) {
+    const q = Queue.get(queueId);
+    if (q) {
+        delete subscriptions[q.id][observerId];
+        q.notifyObservers();
+    }
+}
+
 // TODO: race conditions everywhere
 export class Queue {
 
@@ -22,18 +40,6 @@ export class Queue {
         this.videos.push([this.videoIdInc++, v]);
         this.save();
         this.updateQueue();
-        this.notifyObservers();
-    }
-
-    addObserver(id : string, callback : SubscriberCallback) {
-        var queueSubscriptions = subscriptions[this.id] ? subscriptions[this.id] : subscriptions[this.id] = {};
-        queueSubscriptions[id] = callback;
-        this.notifyObservers();
-    }
-
-    removeObserver(id : string) {
-        // TODO: check if exists?
-        delete subscriptions[this.id][id];
         this.notifyObservers();
     }
 
@@ -92,7 +98,7 @@ export class Queue {
         }
     }
 
-    private notifyObservers() {
+    public notifyObservers() {
         var s = this.getState();
         var queueSubscriptions = subscriptions[this.id] || {};
         for (let c in queueSubscriptions) {
