@@ -1,6 +1,15 @@
 extends layout
 
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack || ''}
+
+
+  div(class="container d-flex h-100 flex-column justify-content-center")
+
+    div(class="row justify-content-center")
+      h1(id='status' class="index-title")= status
+
+    div(class="row d-flex justify-content-center")
+      h2= message
+
+
+  pre #{stack || ''}

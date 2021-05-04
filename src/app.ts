@@ -25,26 +25,28 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(function(req : express.Request, res : express.Response, next : express.NextFunction) {
+    res.locals.footer = process.env.VERSION;
+    next();
+});
+
 app.use('/', indexRouter);
 app.use('/queue', queueRouter);
 
-
-// error handler
 app.use(function(err : Error, req : express.Request, res : express.Response, next : express.RequestHandler) {
-  // set locals, only providing error in development
-  console.log(err)
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    console.error(err)
+    if (process.env.NODE_ENV === "development") {
+        res.locals.message = err.message;
+        res.locals.stack = err.stack
+    } else {
+        res.locals.message = "Something went wrong"
+    }
 
-  // render the error page
-  res.status(500);
-  return res.render('error');
+    res.status(res.locals.status = 500);
+    return res.render('error');
 });
 
-
-if (process.env.NODE_ENV === "development") {
-    app.use(errorHandler());
-}
+app.use(errorHandler());
 
 const port = process.env.PORT || 8088;
 

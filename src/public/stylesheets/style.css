@@ -99,3 +99,9 @@ button {
   text-align: center;
   font-size: xx-large
 }
+
+#status {
+  font-weight: bold;
+  color: #0fa3f7;
+  font-size: 100px;
+}
