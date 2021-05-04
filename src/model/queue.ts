@@ -1,13 +1,13 @@
 import { store } from "./store";
 import { Video } from "./video";
 
-export type QueueState = {id : string, currentVideoTime : number, listeners : number, videos : {id: number, youtubeId: string, title: string, duration : number }[]};
+export type QueueState = { id: string, currentVideoTime: number, listeners: number, videos: { id: number, youtubeId: string, title: string, duration: number }[] };
 type SubscriberCallback = (s: QueueState) => void;
 
-var subscriptions : { [queueId : string] : { [subscriberId: string] : SubscriberCallback; } } = {};
+var subscriptions: { [queueId: string]: { [subscriberId: string]: SubscriberCallback; } } = {};
 
 // TODO: these functions are not methods to avoid triggering observers notifications with out of date instances of Queues. Works for now, but I'm considering queue-scoped locks. Or maybe a RDBMS.
-export function addObserver(queueId : string, observerId : string, callback : SubscriberCallback) {
+export function addObserver(queueId: string, observerId: string, callback: SubscriberCallback) {
     const q = Queue.get(queueId);
     if (q) {
         var queueSubscriptions = subscriptions[q.id] ? subscriptions[q.id] : subscriptions[q.id] = {};
@@ -16,7 +16,7 @@ export function addObserver(queueId : string, observerId : string, callback : Su
     }
 }
 
-export function removeObserver(queueId : string, observerId : string) {
+export function removeObserver(queueId: string, observerId: string) {
     const q = Queue.get(queueId);
     if (q) {
         delete subscriptions[q.id][observerId];
@@ -27,27 +27,27 @@ export function removeObserver(queueId : string, observerId : string) {
 // TODO: race conditions everywhere
 export class Queue {
 
-    id : string;
-    private currentVideoStartTime : number;
-    private videos : [number, Video][] = [];
+    id: string;
+    private currentVideoStartTime: number;
+    private videos: [number, Video][] = [];
     private videoIdInc = 1;
 
     async pushVideoById(videoId: string) {
+        this.updateQueue();
         const v = await Video.createFromId(videoId);
         if (!this.videos.length) {
             this.currentVideoStartTime = Math.round(Date.now() / 1000);
         }
         this.videos.push([this.videoIdInc++, v]);
         this.save();
-        this.updateQueue();
         this.notifyObservers();
     }
 
-    getState() : QueueState {
+    getState(): QueueState {
         this.updateQueue();
         return {
             'id': this.id,
-            'videos': this.videos.map(iv  => ({
+            'videos': this.videos.map(iv => ({
                 'id': iv[0],
                 'youtubeId': iv[1].id,
                 'title': iv[1].title,
@@ -55,10 +55,11 @@ export class Queue {
             })),
             'currentVideoTime': this.getCurrentVideoTime(),
             'listeners': Object.keys(subscriptions[this.id] || {}).length,
-          }
+        }
     }
 
-    removeVideo(id : number) : boolean {
+    removeVideo(id: number): boolean {
+        this.updateQueue();
         var i = this.videos.findIndex(iv => iv[0] == id);
         if (i != -1) {
             this.videos.splice(i, 1);
@@ -66,13 +67,12 @@ export class Queue {
                 this.currentVideoStartTime = Math.round(Date.now() / 1000);
             }
             this.save();
-            this.updateQueue();
             this.notifyObservers();
         }
         return i != -1;;
     }
 
-    private getCurrentVideoTime() : number {
+    private getCurrentVideoTime(): number {
         this.updateQueue();
         if (this.videos.length) {
             return Math.round(Date.now() / 1000) - this.currentVideoStartTime;
@@ -82,19 +82,19 @@ export class Queue {
     }
 
     private updateQueue() {
-        // FIXME: multiple videos may have ended
         if (this.videos.length) {
-            const elapsed = Math.round(Date.now() / 1000) - this.currentVideoStartTime;
-            const duration = this.videos[0][1].durationSeconds;
-            if (elapsed - duration > 0) {
+            const now = Math.round(Date.now() / 1000);
+            var videoEndTime = this.currentVideoStartTime;
+            while (this.videos.length && now > videoEndTime + this.videos[0][1].durationSeconds) {
+                videoEndTime += this.videos[0][1].durationSeconds
                 const last = this.videos.shift() as [number, Video];
-                if (this.videos.length) {
-                    this.currentVideoStartTime = this.currentVideoStartTime + last[1].durationSeconds
-                } else {
-                    this.currentVideoStartTime = 0;
-                }
-                this.save();
             }
+            if (!this.videos.length) {
+                this.currentVideoStartTime = 0;
+            } else {
+                this.currentVideoStartTime = videoEndTime;
+            }
+            this.save();
         }
     }
 
@@ -124,7 +124,7 @@ export class Queue {
 }
 
 
-function randomStr(len : number = 10) : string {
+function randomStr(len: number = 10): string {
     const chars = 'qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM';
     var result = '';
     for (let i = 0; i < len; i++) {
