@@ -8,7 +8,7 @@ import morgan from 'morgan';
 import http from 'http';
 import errorHandler from "errorhandler";
 
-process.env.VERSION = 'v0.2.0';
+process.env.VERSION = 'v0.2.1';
 
 var indexRouter = require('./routes/index');
 var queueRouter = require('./routes/queue');
