@@ -71,16 +71,22 @@ button {
   display: table-cell;
   padding: 0 8px;
   vertical-align: middle;
-
+  font-size: medium;
 }
 
 
 .video-remove-button {
+  border-style: none;
   vertical-align: middle;
   float: right;
   display: table-cell;
   margin: 0px;
   padding: 0px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  text-align: center;
+  padding-top: 5px;
 }
 
 .video-remove-icon {
