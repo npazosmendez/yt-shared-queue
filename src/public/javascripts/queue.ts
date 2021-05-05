@@ -65,6 +65,7 @@ function addToQueue() {
     }
 }
 
+
 function renderQueue() {
 
     var currentTime = currentState.currentVideoTime;
@@ -144,6 +145,7 @@ function removeVideo(id : number) {
 function setCurrentVideo(id: number, youtubeId : string, startSeconds: number) {
     currentVideoId = id;
     player.loadVideoById(youtubeId, startSeconds, "large");
+    player.seekTo(startSeconds, true);
     player.playVideo();
     // TODO: find a better solution for this. Maybe have a 'play' or 'connect' button
     // appear after the player is ready.
@@ -172,6 +174,14 @@ function onPlayerReady() {
 }
 
 window.onload = () => {
+    var input = document.getElementById('videoUrlInput') as HTMLInputElement;
+    input.onkeydown = function(e){
+        const code = e.key || e.code;
+        if(e.key == 'Enter'){
+            addToQueue();
+        }
+     };
+
     siteLoaded = true;
     if(playerReady && siteLoaded) connectToQueue();
 }
