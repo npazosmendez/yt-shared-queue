@@ -9,9 +9,5 @@ block content
     div(class="row justify-content-center")
       h1(id='title' class="index-title") YTSharedQueue
 
-    div(class="row d-flex justify-content-start")
-      div(class='col-12 my-auto')
-          div(class="input-group")
-            input(class="form-control mr-1", type="text", name="queueId", id="queueIdInput", value="", placeholder="Queue ID")
-            button(class="btn btn-primary mr-1", onclick='goToQueue()') Connect
-            button(class="btn btn-primary", onclick='newQueue()') New queue
+    div(class="row d-flex justify-content-center")
+      button(class="btn btn-primary", onclick='newQueue()') Create a queue

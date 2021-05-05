@@ -9,17 +9,9 @@ function newQueue() {
     var data = JSON.parse(xmlHttp.responseText);
     var queueId = data.id;
 
-    let input = document.getElementById("queueIdInput") as HTMLInputElement;
     if (queueId) {
-        input.value = queueId;
-        goToQueue();
+        window.location.href = '/queue/' + queueId;
     } else {
         // TODO: handle
     }
 }
-
-function goToQueue() {
-    var queueId = (document.getElementById("queueIdInput") as HTMLInputElement).value;
-    window.location.href = '/queue/' + queueId;
-}
-
