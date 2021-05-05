@@ -56,7 +56,7 @@ function addToQueue() {
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("POST", '/queue/' + queueId + '/push', false);
         xmlHttp.setRequestHeader('Content-Type', 'application/json');
-        xmlHttp.send(`{"url": "${videoUrl}"}`);
+        xmlHttp.send(`{"query": "${videoUrl}"}`);
         if (xmlHttp.status != 200) {
             input.classList.add("invalid-input");
         } else {

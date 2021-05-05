@@ -1,6 +1,7 @@
 import axios from "axios";
 import {parse, toSeconds} from 'iso8601-duration';
 import {Memoize} from 'typescript-memoize';
+import yts from 'yt-search';
 
 export class Video {
     constructor(public id : string, public title : string, public durationSeconds : number) {}
@@ -31,4 +32,18 @@ export class Video {
             throw new Error("YouTube API call failed.");
         }
     }
+
+    public static async createFromQuery(query : string) : Promise<Video | undefined> {
+        try{
+            const r = await yts({query: query, pages: 1});
+            if (r.videos.length) {
+                const v = r.videos[0];
+                return new Video(v.videoId, v.title, v.duration.seconds);
+            } else {
+                return undefined;
+            }
+        } catch {
+            throw new Error("YouTube search failed.");
+        }
+    };
 }
