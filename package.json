@@ -5,7 +5,9 @@
   "scripts": {
     "build": "npm run copy-files && tsc",
     "start": "node build/app.js",
+    "minify": "cd build/public/javascripts && terser index.js -cmo index.js && terser queue.js -cmo queue.js && terser player.js -cmo player.js",
     "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css build/",
+    "dist": "npm run build && npm run minify && zip -r dist.zip build/ node_modules/ views/",
     "watch-sass": "sass --watch src/public/stylesheets/style.css build/public/stylesheets/style.css",
     "dev": "npm run build && concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"tsc -w\" \"nodemon build/app.js\""
   },
@@ -34,6 +36,7 @@
     "errorhandler": "^1.5.1",
     "nodemon": "^2.0.7",
     "sass": "1.32.6",
+    "terser": "^5.7.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   }
