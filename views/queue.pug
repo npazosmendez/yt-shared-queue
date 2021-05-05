@@ -27,7 +27,9 @@ block content
                         i(class="bi bi-person-fill listeners-icon")
                     div(class="input-group queue-push")
                         input(class="form-control mr-1", type="text", name="videoUrlInput", id="videoUrlInput", placeholder="Find a video" autofocus)
-                        button(class="btn btn-primary", onclick='addToQueue()') Add to queue
+                        button(class="btn btn-primary button-push-video", onclick='addToQueue()')
+                            span(id="push-request-status-icon", role="status" aria-hidden="true")
+                            ='Add to queue'
 
 
                     div(class="card", style="width: 100%;", id='queue')

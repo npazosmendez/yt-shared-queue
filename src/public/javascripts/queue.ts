@@ -1,6 +1,6 @@
 // Global state
 
-const queueId : string = document.currentScript?.getAttribute('queueId') || 'undefined';
+const queueId: string = document.currentScript?.getAttribute('queueId') || 'undefined';
 var currentVideoId: number;
 var lastServerUpdate: QueueState;
 var currentState: QueueState;
@@ -54,14 +54,42 @@ function addToQueue() {
         var input = document.getElementById("videoUrlInput") as HTMLInputElement;
         var videoUrl = input.value;
         var xmlHttp = new XMLHttpRequest();
+
+        setPushVideoStatus('waiting');
         xmlHttp.open("POST", '/queue/' + queueId + '/push', false);
         xmlHttp.setRequestHeader('Content-Type', 'application/json');
         xmlHttp.send(`{"query": "${videoUrl}"}`);
         if (xmlHttp.status != 200) {
-            input.classList.add("invalid-input");
+            setPushVideoStatus('error');
         } else {
-            input.classList.remove("invalid-input");
+            setPushVideoStatus('ok');
         }
+    }
+}
+
+function setPushVideoStatus(status: 'waiting' | 'error' | 'ok') {
+    var span = document.getElementById("push-request-status-icon") as HTMLSpanElement;
+    var input = document.getElementById("videoUrlInput") as HTMLInputElement;
+
+    span.classList.remove("bi")
+    span.classList.remove("bi-x-circle-fill")
+    span.classList.remove("spinner-border")
+    span.classList.remove("spinner-border-sm")
+    input.classList.remove("invalid-input");
+
+    switch (status) {
+        case 'waiting':
+            span.classList.add("spinner-border")
+            span.classList.add("spinner-border-sm")
+            break;
+        case 'error':
+            input.classList.add("invalid-input");
+            span.classList.add("bi")
+            span.classList.add("bi-x-circle-fill")
+            span.classList.add("error-icon");
+            break;
+        case 'ok':
+            break;
     }
 }
 
@@ -133,7 +161,7 @@ function renderQueue() {
     queue.style.display = "block";
 }
 
-function removeVideo(id : number) {
+function removeVideo(id: number) {
     if (queueId) {
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("PUT", '/queue/' + queueId + '/remove-video/' + id, false);
@@ -142,7 +170,7 @@ function removeVideo(id : number) {
     }
 }
 
-function setCurrentVideo(id: number, youtubeId : string, startSeconds: number) {
+function setCurrentVideo(id: number, youtubeId: string, startSeconds: number) {
     currentVideoId = id;
     player.loadVideoById(youtubeId, startSeconds, "large");
     player.seekTo(startSeconds, true);
@@ -170,18 +198,18 @@ var siteLoaded = false;
 
 function onPlayerReady() {
     playerReady = true;
-    if(playerReady && siteLoaded) connectToQueue();
+    if (playerReady && siteLoaded) connectToQueue();
 }
 
 window.onload = () => {
     var input = document.getElementById('videoUrlInput') as HTMLInputElement;
-    input.onkeydown = function(e){
+    input.onkeydown = function (e) {
         const code = e.key || e.code;
-        if(e.key == 'Enter'){
+        if (e.key == 'Enter') {
             addToQueue();
         }
-     };
+    };
 
     siteLoaded = true;
-    if(playerReady && siteLoaded) connectToQueue();
+    if (playerReady && siteLoaded) connectToQueue();
 }

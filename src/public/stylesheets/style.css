@@ -149,3 +149,12 @@ button {
   box-shadow: 0 0 0 .2rem rgba(255, 0, 0, 0.3);
 }
 
+
+#push-request-status-icon {
+  margin-right: 10px;
+}
+
+.button-push-video {
+  text-align: center;
+  vertical-align: bottom;
+}
