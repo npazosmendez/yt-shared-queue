@@ -13,7 +13,7 @@ block content
     div(class="row d-flex")
         div(class='col my-auto')
             div(class="row")
-                h2(id='queue-name' class='col')
+                span(id='queue-name' class='col' data-bs-toggle="tooltip" data-bs-placement="top" title="Share your queue using the URL!")
                     =queueId
                     i(id='connected-icon', class="bi bi-wifi connection-status-icon", style="display: none;")
                     i(id='disconnected-icon', class="bi bi-wifi-off connection-status-icon")
@@ -30,7 +30,6 @@ block content
                         button(class="btn btn-primary button-push-video", onclick='addToQueue()')
                             span(id="push-request-status-icon", role="status" aria-hidden="true")
                             ='Add to queue'
-
 
                     div(class="card", style="width: 100%;", id='queue')
                         div(class="card-header" id="current-video-title")
