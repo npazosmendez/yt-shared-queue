@@ -56,14 +56,17 @@ function addToQueue() {
         var xmlHttp = new XMLHttpRequest();
 
         setPushVideoStatus('waiting');
-        xmlHttp.open("POST", '/queue/' + queueId + '/push', false);
+        xmlHttp.open("POST", '/queue/' + queueId + '/push', true);
+        xmlHttp.onload = function (e) {
+            if (xmlHttp.status != 200) {
+                setPushVideoStatus('error');
+            } else {
+                setPushVideoStatus('ok');
+            }
+        };
+
         xmlHttp.setRequestHeader('Content-Type', 'application/json');
         xmlHttp.send(`{"query": "${videoUrl}"}`);
-        if (xmlHttp.status != 200) {
-            setPushVideoStatus('error');
-        } else {
-            setPushVideoStatus('ok');
-        }
     }
 }
 
@@ -164,7 +167,7 @@ function renderQueue() {
 function removeVideo(id: number) {
     if (queueId) {
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("PUT", '/queue/' + queueId + '/remove-video/' + id, false);
+        xmlHttp.open("PUT", '/queue/' + queueId + '/remove-video/' + id, true);
         xmlHttp.send(null);
         // TODO: validate response
     }
