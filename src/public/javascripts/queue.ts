@@ -176,7 +176,6 @@ function removeVideo(id: number) {
 function setCurrentVideo(id: number, youtubeId: string, startSeconds: number) {
     currentVideoId = id;
     player.loadVideoById(youtubeId, startSeconds, "large");
-    player.seekTo(startSeconds, true);
     player.playVideo();
     // TODO: find a better solution for this. Maybe have a 'play' or 'connect' button
     // appear after the player is ready.
