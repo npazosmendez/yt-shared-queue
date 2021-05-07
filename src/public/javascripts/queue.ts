@@ -248,7 +248,6 @@ function fallbackCopyTextToClipboard(text: string) : boolean {
 
 function copyTextToClipboard(text: string) {
     const msg = "Copied!";
-    var successful : boolean;
     if (!navigator.clipboard) {
         if(fallbackCopyTextToClipboard(text)) showAlert(msg);
     } else {
