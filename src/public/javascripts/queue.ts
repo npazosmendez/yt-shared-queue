@@ -129,6 +129,8 @@ function renderQueue() {
     } else if (offset > 10) {
         console.log(`Updating time, off by ${offset}.`);
         setCurrentVideo(newVideo['id'], newVideo['youtubeId'], currentTime);
+    } else {
+        console.log(`Off by ${offset}.`);
     }
 
     (document.getElementById("current-video-title") as HTMLDivElement).innerHTML = `
@@ -185,7 +187,10 @@ function setCurrentVideo(id: number, youtubeId: string, startSeconds: number) {
             player.mute();
             player.playVideo();
         }
-    }, 1500);
+        if (currentVideoId == id && Math.abs(startSeconds - player.getCurrentTime()) > 5 ) {
+            player.seekTo(startSeconds, true);
+        }
+    }, 3000);
 }
 
 function onVideoEnds() {
