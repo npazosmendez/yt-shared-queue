@@ -2,18 +2,20 @@ extends layout
 
 block content
 
-  div(class="container d-flex h-100 flex-column")
+  div(id="alert-banner" class="alert alert-success" role="alert") This is a success alert—check it out
+  div(class="container-flex d-flex h-100 flex-column")
 
-    div(class="row d-flex homepage-button ")
-      a(href="/", class="btn w-100")
+    div(class="row d-flex homepage-button justify-content-center")
+      a(href="/", class="btn")
         span(id="title" class="w-100") YTSharedQueue
 
     //- add this class to make the row fill the remaining height
     //- class=flex-fill
-    div(class="row d-flex")
-        div(class='col my-auto')
+    div(class="row d-flex justify-content-center")
+        div(class='col my-auto' style="margin: 10%;")
             div(class="row")
-                span(id='queue-name' class='col' data-bs-toggle="tooltip" data-bs-placement="top" title="Share your queue using the URL!")
+                span(id='queue-name' class='col')
+                    i(id='copy-link-icon' class="btn bi bi-link-45deg" onclick='copyQueueLink()' data-bs-toggle="tooltip" data-bs-placement="top" title="Copy link")
                     =queueId
                     i(id='connected-icon', class="bi bi-wifi connection-status-icon", style="display: none;")
                     i(id='disconnected-icon', class="bi bi-wifi-off connection-status-icon")

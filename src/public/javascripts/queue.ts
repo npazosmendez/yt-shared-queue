@@ -215,3 +215,61 @@ window.onload = () => {
     siteLoaded = true;
     if (playerReady && siteLoaded) connectToQueue();
 }
+
+
+function copyQueueLink() {
+    copyTextToClipboard(window.location.toString());
+}
+
+function fallbackCopyTextToClipboard(text: string) : boolean {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    var successful : boolean;
+    try {
+        successful = document.execCommand('copy');
+    } catch (err) {
+        successful = false;
+    }
+
+    document.body.removeChild(textArea);
+    if(!successful) console.error('Error copying to clipboard');
+    return successful;
+}
+
+function copyTextToClipboard(text: string) {
+    const msg = "Copied!";
+    var successful : boolean;
+    if (!navigator.clipboard) {
+        if(fallbackCopyTextToClipboard(text)) showAlert(msg);
+    } else {
+        navigator.clipboard.writeText(text).then(function () {
+            showAlert(msg);
+        }, function (err) {
+            console.error('Error copying to clipboard', err);
+        });
+    }
+}
+
+function showAlert(text : string, timeout : number = 2000) {
+    var alert = document.getElementById("alert-banner") as HTMLDivElement;
+    alert.innerHTML = text;
+    alert.style.visibility = "visible";
+    alert.style.opacity = "1";
+    setTimeout(() => hideAlert(), timeout);
+}
+
+function hideAlert() {
+    var alert = document.getElementById("alert-banner") as HTMLDivElement;
+    alert.style.visibility = "hidden";
+    alert.style.opacity = "0";
+}

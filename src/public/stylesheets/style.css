@@ -159,6 +159,20 @@ button {
   vertical-align: bottom;
 }
 
-#queue-name:hover {
-  text-shadow: 1px 1px 1px grey;
+#copy-link-icon {
+  color: gray;
+  font-size: x-large;
+}
+
+#copy-link-icon:active {
+  color: black;
+}
+
+#alert-banner {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0.2s, opacity 0.2s cubic-bezier(0.075, 0.82, 0.165, 1)
 }
