@@ -12,6 +12,7 @@ process.env.VERSION = 'v0.5';
 
 var indexRouter = require('./routes/index');
 var queueRouter = require('./routes/queue');
+var metricsRouter = require('./routes/metrics');
 
 const app = express();
 const server = http.createServer(app);
@@ -32,6 +33,7 @@ app.use(function(req : express.Request, res : express.Response, next : express.N
 
 app.use('/', indexRouter);
 app.use('/queue', queueRouter);
+app.use('/metrics', metricsRouter);
 
 app.use(function(err : Error, req : express.Request, res : express.Response, next : express.RequestHandler) {
     console.error(err)

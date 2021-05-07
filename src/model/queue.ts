@@ -4,7 +4,7 @@ import { Video } from "./video";
 export type QueueState = { id: string, currentVideoTime: number, listeners: number, videos: { id: number, youtubeId: string, title: string, duration: number }[] };
 type SubscriberCallback = (s: QueueState) => void;
 
-var subscriptions: { [queueId: string]: { [subscriberId: string]: SubscriberCallback; } } = {};
+export var subscriptions: { [queueId: string]: { [subscriberId: string]: SubscriberCallback; } } = {};
 
 // TODO: these functions are not methods to avoid triggering observers notifications with out of date instances of Queues. Works for now, but I'm considering queue-scoped locks. Or maybe a RDBMS.
 export function addObserver(queueId: string, observerId: string, callback: SubscriberCallback) {
