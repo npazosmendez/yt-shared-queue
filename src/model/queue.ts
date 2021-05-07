@@ -4,6 +4,11 @@ import { Video } from "./video";
 export type QueueState = { id: string, currentVideoTime: number, listeners: number, videos: { id: number, youtubeId: string, title: string, duration: number }[] };
 type SubscriberCallback = (s: QueueState) => void;
 
+/**
+ * NOTE: subscriptions are not persisted, they are not part of a Queue.
+ * Ideally, we would have a QueuesSubscriptionsManager class instead
+ * of this global dictionary and functions, but it works for now.
+ * */
 export var subscriptions: { [queueId: string]: { [subscriberId: string]: SubscriberCallback; } } = {};
 
 // TODO: these functions are not methods to avoid triggering observers notifications with out of date instances of Queues. Works for now, but I'm considering queue-scoped locks. Or maybe a RDBMS.
@@ -12,7 +17,7 @@ export function addObserver(queueId: string, observerId: string, callback: Subsc
     if (q) {
         var queueSubscriptions = subscriptions[q.id] ? subscriptions[q.id] : subscriptions[q.id] = {};
         queueSubscriptions[observerId] = callback;
-        q.notifyObservers();
+        notifyObservers(q.id);
     }
 }
 
@@ -20,11 +25,22 @@ export function removeObserver(queueId: string, observerId: string) {
     const q = Queue.get(queueId);
     if (q) {
         delete subscriptions[q.id][observerId];
-        q.notifyObservers();
+        notifyObservers(q.id);
     }
 }
 
-// TODO: race conditions everywhere
+function notifyObservers(queueId : string) {
+    const q = Queue.get(queueId);
+    if (q) {
+        const s = q.getState();
+        var queueSubscriptions = subscriptions[q.id] || {};
+        for (let c in queueSubscriptions) {
+            queueSubscriptions[c](s);
+        }
+    }
+}
+
+// TODO: race conditions everywhere. Also this class shouldn't be managing the storage.
 export class Queue {
 
     id: string;
@@ -38,8 +54,8 @@ export class Queue {
             this.currentVideoStartTime = Math.round(Date.now() / 1000);
         }
         this.videos.push([this.videoIdInc++, v]);
-        this.save();
-        this.notifyObservers();
+        await this.save();
+        notifyObservers(this.id);
     }
 
     getState(): QueueState {
@@ -57,7 +73,7 @@ export class Queue {
         }
     }
 
-    removeVideo(id: number): boolean {
+    async removeVideo(id: number): Promise<boolean> {
         this.updateQueue();
         var i = this.videos.findIndex(iv => iv[0] == id);
         if (i != -1) {
@@ -65,8 +81,8 @@ export class Queue {
             if (i == 0) {
                 this.currentVideoStartTime = Math.round(Date.now() / 1000);
             }
-            this.save();
-            this.notifyObservers();
+            await this.save();
+            notifyObservers(this.id);
         }
         return i != -1;;
     }
@@ -93,22 +109,13 @@ export class Queue {
             } else {
                 this.currentVideoStartTime = videoEndTime;
             }
-            this.save();
-        }
-    }
-
-    public notifyObservers() {
-        var s = this.getState();
-        var queueSubscriptions = subscriptions[this.id] || {};
-        for (let c in queueSubscriptions) {
-            queueSubscriptions[c](s);
         }
     }
 
     constructor() {
         this.id = randomStr();
         this.currentVideoStartTime = 0;
-        store.put(this.id, this);
+        store.put(this.id, this); // TODO: watch out, this is not sync
     }
 
     static get(queueId: string): Queue | undefined {
@@ -117,8 +124,8 @@ export class Queue {
         return result;
     }
 
-    private save() {
-        store.put(this.id, this);
+    private async save() : Promise<boolean> {
+        return store.put(this.id, this);
     }
 }
 

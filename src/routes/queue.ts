@@ -1,14 +1,13 @@
 import express from 'express';
 import { Queue, QueueState, addObserver, removeObserver } from '../model/queue';
 import { Video } from '../model/video';
-import Context from './context';
+import { store } from '../model/store';
+
 var router = express.Router();
 
-function getQueueOr404(req: express.Request, res: express.Response, next: express.NextFunction) {
+function queueExistsOr404(req: express.Request, res: express.Response, next: express.NextFunction) {
     const queueId = req.params.queueId;
-    const q = Queue.get(queueId);
-    if (q) {
-        Context.bind(req, q);
+    if (store.doesExist(queueId)) {
         next();
     } else {
         res.locals.message = `No queue '${queueId}'`
@@ -25,7 +24,7 @@ router.put('/', function (req: express.Request, res: express.Response, next: exp
 })
 
 router.post('/:queueId/push',
-    getQueueOr404,
+    queueExistsOr404,
     async function (req: express.Request, res: express.Response, next: express.NextFunction) {
         const query = req.body.query;
         const videoId = Video.getIdFromURL(query);
@@ -37,8 +36,8 @@ router.post('/:queueId/push',
         }
 
         if (video) {
-            const q = Context.get(req).queue;
-            q.pushVideo(video)
+            const q = Queue.get(req.params.queueId);
+            q?.pushVideo(video)
                 .then(() => res.sendStatus(200))
                 .catch(next);
         } else {
@@ -48,49 +47,49 @@ router.post('/:queueId/push',
 );
 
 router.get('/:queueId',
-    getQueueOr404,
+    queueExistsOr404,
     function (req: express.Request, res: express.Response, next: express.NextFunction) {
-        const q = Context.get(req).queue;
-        res.render('queue', { 'queueId': q.id });
+        const q = Queue.get(req.params.queueId);
+        res.render('queue', { 'queueId': q?.id });
     }
 );
 
 
-var uuid = 1; // TODO: if I keep this, use uuid lib
+var subId = 1;
 router.get('/:queueId/state',
-    getQueueOr404,
+    queueExistsOr404,
         async function (req: express.Request, res: express.Response, next: express.NextFunction) {
-        const q = Context.get(req).queue;
+        const q = Queue.get(req.params.queueId);
 
-        console.log(`New connection to queue ${q.id}`)
+        console.log(`New connection to queue ${q?.id}`)
         res.writeHead(200, {
             'Content-Type': 'text/event-stream',
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive'
         })
 
-        var id = (++uuid).toString();
+        var id = (++subId).toString();
         var sendState = (state: QueueState) => {
-            console.log(`Sending queue ${q.id} update to ${id}`)
+            console.log(`Sending queue ${q?.id} update to ${id}`)
             res.write("data: " + JSON.stringify(state) + "\n\n")
         }
 
         req.on('close', () => {
-            console.log(`Connection closed for ${id} on queue ${q.id}`)
-            removeObserver(q.id, id);
+            console.log(`Connection closed for ${id} on queue ${q?.id}`)
+            removeObserver(req.params.queueId, id);
             res.end();
         });
 
-        addObserver(q.id, id, sendState);
+        addObserver(req.params.queueId, id, sendState);
     }
 );
 
 router.put('/:queueId/remove-video/:video(\\d+)',
-    getQueueOr404,
+    queueExistsOr404,
     async function (req: express.Request, res: express.Response, next: express.NextFunction) {
-        const q = Context.get(req).queue;
+        const q = Queue.get(req.params.queueId);
         const videoId = parseInt(req.params.video, 10);
-        if (q.removeVideo(videoId)) {
+        if (q?.removeVideo(videoId)) {
             res.sendStatus(200);
         } else {
             res.sendStatus(410);

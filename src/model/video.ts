@@ -18,7 +18,7 @@ export class Video {
     }
 
     @Memoize()
-    public static async createFromId(id : string) : Promise<Video> {
+    public static async createFromId(id : string) : Promise<Video | undefined> {
         const API_KEY = process.env.GOOGLE_API_KEY;
         const url = `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=contentDetails,snippet&key=${API_KEY}`;
         const response = await axios.get(url);
@@ -29,7 +29,8 @@ export class Video {
             console.log(`Creted video with id=${id} title='${title}' duration=${seconds}s`);
             return new Video(id, title, seconds);
         } else {
-            throw new Error("YouTube API call failed.");
+            console.error("YouTube API call failed.");
+            return undefined;
         }
     }
 
@@ -39,11 +40,10 @@ export class Video {
             if (r.videos.length) {
                 const v = r.videos[0];
                 return new Video(v.videoId, v.title, v.duration.seconds);
-            } else {
-                return undefined;
             }
         } catch {
-            throw new Error("YouTube search failed.");
+            console.error("YouTube search failed.");
         }
+        return undefined;
     };
 }
