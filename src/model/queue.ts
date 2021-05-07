@@ -40,7 +40,7 @@ function notifyObservers(queueId : string) {
     }
 }
 
-// TODO: race conditions everywhere. Also this class shouldn't be managing the storage.
+// TODO: race conditions everywhere. Also this class shouldn't be managing the storage, using old instances may overwrite new data under the hood.
 export class Queue {
 
     id: string;
