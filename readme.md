@@ -23,9 +23,10 @@ Pending technical improvements:
 
 Features I have in mind:
 
-- [ ] Support syncing time changes in current video
+- [ ] Support syncing time changes and/or pauses in current video
 - [ ] Queue permissions (listen-only vs edit)
 - [ ] Show active/recent queues in home page
 - [ ] Support custom names for queues
 - [ ] "Circular" queues?
 - [ ] Recommend videos for queue?
+- [ ] Static infinite queues to join quickly (e.g. 'Rock playlist')
