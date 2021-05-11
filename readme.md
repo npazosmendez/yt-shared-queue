@@ -1,6 +1,6 @@
 # YTSharedQueue
 
-A YouTube video collaborative queue thats syncs (tries to sync) the clients' players.
+Shared queues for YouTube videos, synced across the clients' players.
 
 > https://ytsharedqueue.azurewebsites.net/
 
