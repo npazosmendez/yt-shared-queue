@@ -2,6 +2,7 @@ import express from 'express';
 import { Queue, QueueState, addObserver, removeObserver } from '../model/queue';
 import { Video } from '../model/video';
 import { store } from '../model/store';
+import { asyncHandler } from '../middlewares'
 
 var router = express.Router();
 
@@ -25,7 +26,7 @@ router.put('/', function (req: express.Request, res: express.Response, next: exp
 
 router.post('/:queueId/push',
     queueExistsOr404,
-    async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    asyncHandler(async function (req: express.Request, res: express.Response, next: express.NextFunction) {
         const query = req.body.query;
         const videoId = Video.getIdFromURL(query);
         let video : Video | undefined = undefined;
@@ -43,7 +44,7 @@ router.post('/:queueId/push',
         } else {
             res.sendStatus(400);
         }
-    }
+    })
 );
 
 router.get('/:queueId',
@@ -58,7 +59,7 @@ router.get('/:queueId',
 var subId = 1;
 router.get('/:queueId/state',
     queueExistsOr404,
-        async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    asyncHandler(async function (req: express.Request, res: express.Response, next: express.NextFunction) {
         const q = Queue.get(req.params.queueId);
 
         console.log(`New connection to queue ${q?.id}`)
@@ -81,12 +82,12 @@ router.get('/:queueId/state',
         });
 
         addObserver(req.params.queueId, id, sendState);
-    }
+    })
 );
 
 router.put('/:queueId/remove-video/:video(\\d+)',
     queueExistsOr404,
-    async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    asyncHandler(async function (req: express.Request, res: express.Response, next: express.NextFunction) {
         const q = Queue.get(req.params.queueId);
         const videoId = parseInt(req.params.video, 10);
         if (q?.removeVideo(videoId)) {
@@ -94,7 +95,7 @@ router.put('/:queueId/remove-video/:video(\\d+)',
         } else {
             res.sendStatus(410);
         }
-    }
+    })
 );
 
 module.exports = router;

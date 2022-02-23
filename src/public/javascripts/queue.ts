@@ -187,6 +187,9 @@ function setCurrentVideo(id: number, youtubeId: string, startSeconds: number) {
             player.mute();
             player.playVideo();
         }
+    }, 500);
+
+    setTimeout(() => {
         if (currentVideoId == id && Math.abs(startSeconds - player.getCurrentTime()) > 5 ) {
             player.seekTo(startSeconds, true);
         }
