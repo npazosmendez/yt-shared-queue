@@ -23,6 +23,7 @@
     "morgan": "^1.9.1",
     "pug": "2.0.0-beta11",
     "typescript-memoize": "^1.0.1",
+    "errorhandler": "^1.5.1",
     "yt-search": "^2.8.0"
   },
   "devDependencies": {
@@ -34,7 +35,6 @@
     "@types/yt-search": "^2.3.0",
     "concurrently": "^6.0.2",
     "copyfiles": "^2.4.1",
-    "errorhandler": "^1.5.1",
     "nodemon": "^2.0.7",
     "sass": "1.32.6",
     "terser": "^5.7.0",
