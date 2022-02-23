@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "npm run copy-files && tsc",
+    "heroku-postbuild": "npm run dist",
     "start": "node build/app.js",
     "minify": "cd build/public/javascripts && terser index.js -cmo index.js && terser queue.js -cmo queue.js && terser player.js -cmo player.js",
     "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css build/",
