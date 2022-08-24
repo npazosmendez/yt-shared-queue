@@ -12,8 +12,8 @@ type SubscriberCallback = (s: QueueState) => void;
 export var subscriptions: { [queueId: string]: { [subscriberId: string]: SubscriberCallback; } } = {};
 
 // TODO: these functions are not methods to avoid triggering observers notifications with out of date instances of Queues. Works for now, but I'm considering queue-scoped locks. Or maybe a RDBMS.
-export function addObserver(queueId: string, observerId: string, callback: SubscriberCallback) {
-    const q = Queue.get(queueId);
+export async function addObserver(queueId: string, observerId: string, callback: SubscriberCallback) {
+    const q = await Queue.get(queueId);
     if (q) {
         var queueSubscriptions = subscriptions[q.id] ? subscriptions[q.id] : subscriptions[q.id] = {};
         queueSubscriptions[observerId] = callback;
@@ -21,16 +21,16 @@ export function addObserver(queueId: string, observerId: string, callback: Subsc
     }
 }
 
-export function removeObserver(queueId: string, observerId: string) {
-    const q = Queue.get(queueId);
+export async function removeObserver(queueId: string, observerId: string) {
+    const q = await Queue.get(queueId);
     if (q) {
         delete subscriptions[q.id][observerId];
         notifyObservers(q.id);
     }
 }
 
-function notifyObservers(queueId : string) {
-    const q = Queue.get(queueId);
+async function notifyObservers(queueId : string) {
+    const q = await Queue.get(queueId);
     if (q) {
         const s = q.getState();
         var queueSubscriptions = subscriptions[q.id] || {};
@@ -118,13 +118,13 @@ export class Queue {
         store.put(this.id, this); // TODO: watch out, this is not sync
     }
 
-    static get(queueId: string): Queue | undefined {
-        var result = store.get(queueId) as Queue;
+    static async get(queueId: string): Promise<Queue | undefined> {
+        var result = await store.get(queueId) as Queue;
         if (result) Object.setPrototypeOf(result, Queue.prototype);
         return result;
     }
 
-    private async save() : Promise<boolean> {
+    private async save() : Promise<void> {
         return store.put(this.id, this);
     }
 }

@@ -7,6 +7,8 @@ import path from 'path';
 import morgan from 'morgan';
 import http from 'http';
 import errorHandler from "errorhandler";
+import { initStore } from './model/store';
+import { exit } from 'process';
 
 process.env.VERSION = 'v0.5.1';
 
@@ -52,7 +54,12 @@ app.use(errorHandler());
 
 const port = process.env.PORT || 8088;
 
-server.listen(port, () => console.log(`http server is listening on http://localhost:${port}`));
+initStore().then(() => {
+    server.listen(port, () => console.log(`http server is listening on http://localhost:${port}`));
+}).catch((err) => {
+    console.error("Could not intialize store", err)
+    exit(1)
+})
 
 export default server;
 

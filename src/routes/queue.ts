@@ -6,9 +6,9 @@ import { asyncHandler } from '../middlewares'
 
 var router = express.Router();
 
-function queueExistsOr404(req: express.Request, res: express.Response, next: express.NextFunction) {
+async function queueExistsOr404(req: express.Request, res: express.Response, next: express.NextFunction) {
     const queueId = req.params.queueId;
-    if (store.doesExist(queueId)) {
+    if (await store.doesExist(queueId)) {
         next();
     } else {
         res.locals.message = `No queue '${queueId}'`
@@ -37,7 +37,7 @@ router.post('/:queueId/push',
         }
 
         if (video) {
-            const q = Queue.get(req.params.queueId);
+            const q = await Queue.get(req.params.queueId);
             q?.pushVideo(video)
                 .then(() => res.sendStatus(200))
                 .catch(next);
@@ -49,8 +49,8 @@ router.post('/:queueId/push',
 
 router.get('/:queueId',
     queueExistsOr404,
-    function (req: express.Request, res: express.Response, next: express.NextFunction) {
-        const q = Queue.get(req.params.queueId);
+    async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+        const q = await Queue.get(req.params.queueId);
         res.render('queue', { 'queueId': q?.id });
     }
 );
@@ -60,7 +60,7 @@ var subId = 1;
 router.get('/:queueId/state',
     queueExistsOr404,
     asyncHandler(async function (req: express.Request, res: express.Response, next: express.NextFunction) {
-        const q = Queue.get(req.params.queueId);
+        const q = await Queue.get(req.params.queueId);
 
         console.log(`New connection to queue ${q?.id}`)
         res.writeHead(200, {
@@ -88,7 +88,7 @@ router.get('/:queueId/state',
 router.put('/:queueId/remove-video/:video(\\d+)',
     queueExistsOr404,
     asyncHandler(async function (req: express.Request, res: express.Response, next: express.NextFunction) {
-        const q = Queue.get(req.params.queueId);
+        const q = await Queue.get(req.params.queueId);
         const videoId = parseInt(req.params.video, 10);
         if (q?.removeVideo(videoId)) {
             res.sendStatus(200);
