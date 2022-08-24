@@ -23,7 +23,7 @@ Pending technical improvements:
 
 Features I have in mind:
 
-- [ ] Support syncing time changes and/or pauses in current video
+- [ ] Support syncing time changes and/or pauses in current video (right now, the server dictates the pace for everyone and can't be modified)
 - [ ] Queue permissions (listen-only vs edit)
 - [ ] Show active/recent queues in home page
 - [ ] Support custom names for queues
