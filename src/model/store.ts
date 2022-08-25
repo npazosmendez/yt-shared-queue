@@ -27,7 +27,10 @@ export async function initStore() : Promise<void> {
 class PostgresStore {
 	client : Client
 	constructor(dbStr: string) {
-		this.client = new Client(dbStr)
+		this.client = new Client({
+			connectionString: dbStr,
+			ssl: process.env.SSL_SUPPORT !== undefined,
+		})
 	}
 
 	async connect() {
