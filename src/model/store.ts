@@ -29,7 +29,9 @@ class PostgresStore {
 	constructor(dbStr: string) {
 		this.client = new Client({
 			connectionString: dbStr,
-			ssl: process.env.SSL_SUPPORT !== undefined,
+			ssl: (process.env.SSL_SUPPORT == undefined) ? false : {
+				rejectUnauthorized: false
+			},
 		})
 	}
 
