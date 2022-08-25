@@ -25,10 +25,16 @@ export async function initStore() : Promise<void> {
 }
 
 class PostgresStore {
+	dbString :string
 	client : Client
 	constructor(dbStr: string) {
-		this.client = new Client({
-			connectionString: dbStr,
+		this.dbString = dbStr
+		this.client = this.createClient()
+	}
+
+	createClient() : Client {
+		return new Client({
+			connectionString: this.dbString,
 			ssl: (process.env.SSL_SUPPORT == undefined) ? false : {
 				rejectUnauthorized: false
 			},
@@ -36,19 +42,37 @@ class PostgresStore {
 	}
 
 	async connect() {
-		await this.client.connect()
-		const res = await this.client.query(`
-		CREATE TABLE IF NOT EXISTS items (
-			id TEXT PRIMARY KEY,
-			value JSONB
-		 );
-		`)
-		console.log(res)
+		try {
+			this.client.on('error', error => {
+				console.error("Database error, attempting to reconnect", error)
+				this.triggerAsyncReconnection()
+			})
+			await this.client.connect()
+			console.log("Connected to database.")
+			const res = await this.client.query(`
+			CREATE TABLE IF NOT EXISTS items (
+				id TEXT PRIMARY KEY,
+				value JSONB
+			 );
+			`)
+			console.log(res)
+		} catch (err) {
+			console.log("Error initializing database connection", err)
+			this.triggerAsyncReconnection()
+		}
+	}
+
+	triggerAsyncReconnection() {
+		setTimeout(async () => {
+			console.log("Attempting to recreate database connection...")
+			this.client = this.createClient()
+			await this.connect();
+		}, 5000)
 	}
 
 	async put(id: string, val: any) : Promise<void> {
 		const res = await this.client.query(`
-			INSERT INTO items(id, value) 
+			INSERT INTO items(id, value)
 				VALUES($1, $2)
 				ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value;
 			`,
