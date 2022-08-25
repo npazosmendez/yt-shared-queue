@@ -2,7 +2,7 @@
 
 Shared queues for YouTube videos, synced across the clients' players.
 
-> https://ytsharedqueue.azurewebsites.net/
+> https://ytsharedqueue.herokuapp.com/
 
 ## Development
 
